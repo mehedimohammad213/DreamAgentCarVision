@@ -3,6 +3,8 @@
  * Used by page client components so each route hits its own API in DevTools.
  */
 
+import { unwrapCmsPayload } from "@/lib/cms";
+
 const CMS_API_URL =
   process.env.NEXT_PUBLIC_CMS_API_URL || "http://127.0.0.1:8000/api";
 const CMS_SITE_KEY = process.env.NEXT_PUBLIC_CMS_SITE_KEY || "";
@@ -21,7 +23,8 @@ export async function fetchCmsPageBrowser<T = unknown>(
       cache: "no-store",
     });
     if (!res.ok) return null;
-    return res.json();
+    const json = await res.json();
+    return unwrapCmsPayload<T>(json);
   } catch {
     return null;
   }
@@ -41,7 +44,8 @@ export async function fetchCmsBrowser<T = unknown>(
       cache: "no-store",
     });
     if (!res.ok) return null;
-    return res.json();
+    const json = await res.json();
+    return unwrapCmsPayload<T>(json);
   } catch {
     return null;
   }

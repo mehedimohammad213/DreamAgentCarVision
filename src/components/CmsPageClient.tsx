@@ -4,7 +4,6 @@ import Image from "next/image";
 import Link from "next/link";
 import ContactForm from "@/components/ContactForm";
 import HeroSlider from "@/components/HeroSlider";
-import LocationMapBlock from "@/components/LocationMapBlock";
 import { useCmsPage } from "@/hooks/useCmsPage";
 import {
   findUsFromSection,
@@ -300,6 +299,38 @@ function CmsComponentBlock({
   );
 }
 
+const DEFAULT_HERO_IMAGE =
+  "https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&w=1920&q=80";
+
+function pageHeroFromCms(page: CmsPage | null) {
+  const additional = page?.additional as
+    | {
+        hero?: { title?: string; subtitle?: string; image?: string };
+        hero_title?: string;
+        hero_subtitle?: string;
+        hero_image?: string;
+      }
+    | null
+    | undefined;
+
+  const title =
+    additional?.hero?.title ||
+    additional?.hero_title ||
+    page?.page_name_en ||
+    page?.head?.title ||
+    "Page";
+  const subtitle =
+    additional?.hero?.subtitle ||
+    additional?.hero_subtitle ||
+    undefined;
+  const image =
+    additional?.hero?.image ||
+    additional?.hero_image ||
+    DEFAULT_HERO_IMAGE;
+
+  return { title, subtitle, image };
+}
+
 function CmsSectionBlock({
   section,
   page,
@@ -307,25 +338,27 @@ function CmsSectionBlock({
   section: CmsBodySection;
   page: CmsPage | null;
 }) {
-  const findUs = findUsFromSection(
-    section,
-    page?.additional as
-      | {
-          find_us?: {
-            eyebrow?: string;
-            heading?: string;
-            placeName?: string;
-            embedUrl?: string;
-            mapUrl?: string;
-            zoom?: number;
-            coordinates?: { lat?: number; lng?: number };
-          };
-        }
-      | null
-      | undefined,
-  );
-  if (findUs) {
-    return <LocationMapBlock findUs={findUs} />;
+  // Maps are rendered once at the page level (like About/Contact/Career).
+  if (
+    findUsFromSection(
+      section,
+      page?.additional as
+        | {
+            find_us?: {
+              eyebrow?: string;
+              heading?: string;
+              placeName?: string;
+              embedUrl?: string;
+              mapUrl?: string;
+              zoom?: number;
+              coordinates?: { lat?: number; lng?: number };
+            };
+          }
+        | null
+        | undefined,
+    )
+  ) {
+    return null;
   }
 
   const components = section.data ?? [];
@@ -359,50 +392,80 @@ function CmsSectionBlock({
 export default function CmsPageClient({ slug, initialPage }: CmsPageClientProps) {
   const page = useCmsPage(slug, initialPage);
   const sections = Array.isArray(page?.body) ? (page.body as CmsBodySection[]) : [];
-  const pageTitle =
-    page?.page_name_en ??
-    page?.head?.title ??
-    stripHtml(String(page?.additional?.hero_title ?? "")) ??
-    "Page";
+  const hero = pageHeroFromCms(page);
 
-  if (sections.length === 0) {
-    return (
-      <section className="section-padding">
-        <div className="page-container">
-          <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">{pageTitle}</h1>
-          <p className="mt-4 text-muted">
-            This page is published but has no content sections yet.
-          </p>
-        </div>
-      </section>
-    );
-  }
-
-  const hasHero = sections.some((section) =>
+  const hasSliderHero = sections.some((section) =>
     (section.data ?? []).some(
       (component) => normalizeComponentType(component.type) === "slider",
     ),
   );
 
+  const contentSections = sections.filter(
+    (section) =>
+      !findUsFromSection(
+        section,
+        page?.additional as
+          | {
+              find_us?: {
+                eyebrow?: string;
+                heading?: string;
+                placeName?: string;
+                embedUrl?: string;
+                mapUrl?: string;
+                zoom?: number;
+                coordinates?: { lat?: number; lng?: number };
+              };
+            }
+          | null
+          | undefined,
+      ),
+  );
+
   return (
     <div className="bg-white">
-      {!hasHero ? (
-        <section className="border-b border-border bg-section-warm py-10 sm:py-14">
-          <div className="page-container">
-            <h1 className="text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl">
-              {pageTitle}
+      {!hasSliderHero ? (
+        <section className="relative flex min-h-[220px] items-center overflow-hidden sm:min-h-[300px] lg:min-h-[360px]">
+          <Image
+            src={hero.image}
+            alt=""
+            fill
+            priority
+            className="object-cover blur-sm scale-105"
+            sizes="100vw"
+            aria-hidden
+            unoptimized={hero.image.startsWith("http")}
+          />
+          <div className="absolute inset-0 bg-dark/70" />
+          <div className="page-container relative">
+            <h1 className="text-3xl font-bold text-white sm:text-4xl lg:text-5xl xl:text-6xl">
+              {hero.title}
             </h1>
+            {hero.subtitle ? (
+              <p className="mt-3 max-w-2xl text-sm text-slate-200 sm:text-base">
+                {hero.subtitle}
+              </p>
+            ) : null}
           </div>
         </section>
       ) : null}
 
-      {sections.map((section) => (
-        <CmsSectionBlock
-          key={section._id ?? section.data?.[0]?._id ?? pageTitle}
-          section={section}
-          page={page}
-        />
-      ))}
+      {contentSections.length === 0 ? (
+        <section className="section-padding">
+          <div className="page-container">
+            <p className="text-muted">
+              This page is published but has no content sections yet.
+            </p>
+          </div>
+        </section>
+      ) : (
+        contentSections.map((section) => (
+          <CmsSectionBlock
+            key={section._id ?? section.data?.[0]?._id ?? hero.title}
+            section={section}
+            page={page}
+          />
+        ))
+      )}
     </div>
   );
 }

@@ -346,6 +346,20 @@ export type CmsSiteSettings = typeof fallbackSiteConfig & {
   };
 };
 
+/** Unwrap list endpoints that return `{ data, meta }`. Single resources stay as-is. */
+export function unwrapCmsPayload<T>(payload: unknown): T {
+  if (
+    payload &&
+    typeof payload === "object" &&
+    "data" in payload &&
+    (Array.isArray((payload as { data: unknown }).data) ||
+      "meta" in payload)
+  ) {
+    return (payload as { data: T }).data;
+  }
+  return payload as T;
+}
+
 async function fetchCms<T>(path: string): Promise<T | null> {
   if (!CMS_SITE_KEY) return null;
 
@@ -358,7 +372,8 @@ async function fetchCms<T>(path: string): Promise<T | null> {
       cache: "no-store",
     });
     if (!res.ok) return null;
-    return res.json();
+    const json = await res.json();
+    return unwrapCmsPayload<T>(json);
   } catch {
     return null;
   }

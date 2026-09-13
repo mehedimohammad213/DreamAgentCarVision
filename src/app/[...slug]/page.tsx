@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import CmsPageClient from "@/components/CmsPageClient";
+import ContactCTA from "@/components/ContactCTA";
+import PageLocationMap from "@/components/PageLocationMap";
 import {
   cmsPageFetchKey,
   hasCmsPageQueryParams,
@@ -39,6 +41,10 @@ export default async function DynamicCmsPage({
   if (!page) notFound();
 
   return (
-    <CmsPageClient slug={cmsPageFetchKey(page)} initialPage={page} />
+    <>
+      <CmsPageClient slug={cmsPageFetchKey(page)} initialPage={page} />
+      <ContactCTA />
+      <PageLocationMap page={page} />
+    </>
   );
 }
