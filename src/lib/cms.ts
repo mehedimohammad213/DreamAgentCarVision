@@ -280,6 +280,8 @@ export type CmsMenu = {
 export type CmsNavbar = {
   id: number;
   title_en?: string;
+  menu_item_ids?: Array<number | string>;
+  menu_items?: CmsMenuItem[];
   menu?: CmsMenu & {
     menu_items_headless?: CmsMenuItem[];
   };
@@ -725,18 +727,30 @@ export function pageIdFromMenuLink(link: string): string | null {
   return params.get("pageId") ?? params.get("page_id");
 }
 
-export function menuItemsFromCms(menu?: CmsMenu | null): {
+function menuItemsFromSource(
+  source?: {
+    menu_items?: CmsMenuItem[];
+    menu_items_headless?: CmsMenuItem[];
+    menu?: CmsMenu & { menu_items_headless?: CmsMenuItem[] };
+  } | null,
+): CmsMenuItem[] {
+  return (
+    source?.menu_items ??
+    source?.menu_items_headless ??
+    source?.menu?.menu_items ??
+    source?.menu?.menu_items_headless ??
+    []
+  );
+}
+
+export function menuItemsFromCms(
+  menu?: Parameters<typeof menuItemsFromSource>[0],
+): {
   href: string;
   label: string;
   external?: boolean;
 }[] {
-  const items =
-    menu?.menu_items ??
-    (menu as { menu_items_headless?: CmsMenuItem[] } | undefined)
-      ?.menu_items_headless ??
-    [];
-
-  return items
+  return menuItemsFromSource(menu)
     .filter((item) => item.link)
     .map((item) => {
       const rawHref = item.link as string;
@@ -751,7 +765,7 @@ export function navLinksFromNavbars(
 ): { href: string; label: string }[] {
   const list = !navbars ? [] : Array.isArray(navbars) ? navbars : [navbars];
   const navbar = list[0];
-  return menuItemsFromCms(navbar?.menu).map(({ href, label }) => ({
+  return menuItemsFromCms(navbar).map(({ href, label }) => ({
     href,
     label,
   }));
