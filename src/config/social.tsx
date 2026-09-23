@@ -60,19 +60,35 @@ export function getSocialLinks(
   ];
 }
 
-function iconForLabel(label: string) {
-  const key = label.toLowerCase();
+function GenericLinkIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      className={className}
+      aria-hidden
+    >
+      <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+      <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+    </svg>
+  );
+}
 
-  if (key.includes("facebook")) return FacebookIcon;
-  if (key.includes("youtube")) return YouTubeIcon;
+function iconForLabel(label: string, href?: string) {
+  const key = `${label} ${href ?? ""}`.toLowerCase();
+
+  if (key.includes("facebook") || key.includes("fb.com")) return FacebookIcon;
+  if (key.includes("youtube") || key.includes("youtu.be")) return YouTubeIcon;
   if (key.includes("linkedin")) return LinkedInIcon;
 
-  return FacebookIcon;
+  return GenericLinkIcon;
 }
 
 export function getSocialLinksFromMenu(menu?: CmsMenu | null) {
   return menuItemsFromCms(menu).map(({ label, href }) => ({
-    icon: iconForLabel(label),
+    icon: iconForLabel(label, href),
     label,
     href,
   }));

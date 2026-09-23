@@ -515,7 +515,8 @@ export async function getCmsMenu(id: number): Promise<CmsMenu | null> {
 
 export async function getCmsFollowUsMenu(): Promise<CmsMenu | null> {
   const homePage = await getCmsPage("home");
-  const fromHome = menuFromPageBody(homePage, "Follow Us");
+  const fromHome =
+    followUsMenuFromPage(homePage) ?? menuFromPageBody(homePage, "Follow Us");
   if (fromHome) return fromHome;
 
   const settings = await getCmsSiteSettings();
@@ -713,30 +714,48 @@ export function formBuilderFromPage(page: CmsPage | null): CmsFormBuilder | null
   return null;
 }
 
+function isFollowUsMenuContext(
+  sectionId?: string,
+  componentId?: string,
+): boolean {
+  return (
+    sectionId === "section-home-follow-us" ||
+    componentId === "home-follow-us-menu"
+  );
+}
+
 export function menuFromPageBody(
   page: CmsPage | null,
   menuName?: string,
 ): CmsMenu | null {
   if (!page?.body || !Array.isArray(page.body)) return null;
 
-  for (const section of page.body as { data?: unknown[] }[]) {
+  for (const section of page.body as { _id?: string; data?: unknown[] }[]) {
     for (const component of section.data ?? []) {
       const c = component as {
         type?: string;
         id?: number;
+        _id?: string;
         _headless?: CmsMenu;
       };
-      if (c.type !== "menu") continue;
+      if (normalizeComponentType(c.type) !== "menu") continue;
 
       const resolved = page.menus_headless?.find(
         (menu) =>
-          menu.id === c.id && (!menuName || menu.name === menuName),
+          idsMatch(menu.id, c.id) && (!menuName || menu.name === menuName),
       );
       if (resolved) return resolved;
 
-      const embedded = c._headless;
-      if (embedded && (!menuName || embedded.name === menuName)) {
-        return embedded;
+      const embedded = (linkedHeadlessOf(page, c) ?? headlessOf(c)) as CmsMenu | null;
+      if (!embedded) continue;
+
+      const matchesName = !menuName || embedded.name === menuName;
+      const matchesFollowUs =
+        menuName === "Follow Us" &&
+        isFollowUsMenuContext(section._id, c._id);
+
+      if (matchesName || matchesFollowUs) {
+        return { ...embedded, name: embedded.name ?? menuName };
       }
     }
   }
@@ -748,34 +767,67 @@ export function menuFromPageBody(
   return null;
 }
 
+export function followUsMenuFromPage(page: CmsPage | null): CmsMenu | null {
+  const component =
+    findBodyComponent(page, "home-follow-us-menu") ??
+    findBodySection(page, "section-home-follow-us")?.data?.find(
+      (item) => normalizeComponentType(item.type) === "menu",
+    ) ??
+    null;
+
+  if (component) {
+    const live = (linkedHeadlessOf(page, component) ??
+      headlessOf(component)) as CmsMenu | null;
+    const items = menuItemsFromSource(live);
+    if (items.length > 0) {
+      return {
+        id: Number(component.id ?? live?.id ?? 0),
+        name: live?.name ?? "Follow Us",
+        menu_item_ids: live?.menu_item_ids ?? items.map((item) => item.id),
+        menu_items: items,
+      };
+    }
+  }
+
+  return menuFromPageBody(page, "Follow Us");
+}
+
+export function followUsFromPage(page: CmsPage | null): {
+  label: string | null;
+  items: { href: string; label: string; external?: boolean }[];
+} {
+  return {
+    label: followUsLabelFromPage(page),
+    items: menuItemsFromCms(followUsMenuFromPage(page)),
+  };
+}
+
 export function followUsLabelFromPage(page: CmsPage | null): string | null {
+  const fromBody = textFromComponent(
+    findBodyComponent(page, "home-follow-us-title"),
+  );
+  if (fromBody) return fromBody;
+
+  if (page?.body && Array.isArray(page.body)) {
+    for (const section of page.body as { _id?: string; data?: unknown[] }[]) {
+      if (section._id !== "section-home-follow-us") continue;
+
+      for (const component of section.data ?? []) {
+        const c = component as CmsBodyComponent;
+        if (normalizeComponentType(c.type) === "title") {
+          const text = textFromComponent(c);
+          if (text) return text;
+        }
+      }
+    }
+  }
+
   const additional = page?.additional as
     | { follow_us?: { label?: string } }
     | null
     | undefined;
 
-  if (additional?.follow_us?.label) {
-    return additional.follow_us.label;
-  }
-
-  if (!page?.body || !Array.isArray(page.body)) return null;
-
-  for (const section of page.body as { _id?: string; data?: unknown[] }[]) {
-    if (section._id !== "section-home-follow-us") continue;
-
-    for (const component of section.data ?? []) {
-      const c = component as {
-        type?: string;
-        value?: string;
-        _headless?: { text?: string };
-      };
-      if (c.type === "title") {
-        return c._headless?.text ?? c.value ?? null;
-      }
-    }
-  }
-
-  return null;
+  return additional?.follow_us?.label ?? null;
 }
 
 export type CmsGoogleMapData = {

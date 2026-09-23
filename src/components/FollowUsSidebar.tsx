@@ -1,20 +1,21 @@
-import { getSocialLinks, getSocialLinksFromMenu } from "@/config/social";
+"use client";
+
+import { getSocialLinksFromMenu } from "@/config/social";
+import { useCmsPage } from "@/hooks/useCmsPage";
 import {
-  getCmsFollowUsLabel,
-  getCmsFollowUsMenu,
-  getCmsSiteSettings,
+  followUsLabelFromPage,
+  followUsMenuFromPage,
+  type CmsPage,
 } from "@/lib/cms";
 
-export default async function FollowUsSidebar() {
-  const [settings, followUsMenu, sidebarLabel] = await Promise.all([
-    getCmsSiteSettings(),
-    getCmsFollowUsMenu(),
-    getCmsFollowUsLabel(),
-  ]);
-
-  const menuLinks = getSocialLinksFromMenu(followUsMenu);
-  const socialLinks =
-    menuLinks.length > 0 ? menuLinks : getSocialLinks(settings.social);
+export default function FollowUsSidebar({
+  initialPage = null,
+}: {
+  initialPage?: CmsPage | null;
+}) {
+  const page = useCmsPage("home", initialPage);
+  const socialLinks = getSocialLinksFromMenu(followUsMenuFromPage(page));
+  const sidebarLabel = followUsLabelFromPage(page) ?? "Follow Us";
 
   if (socialLinks.length === 0) return null;
 
@@ -37,7 +38,7 @@ export default async function FollowUsSidebar() {
           <div className="flex flex-col items-center gap-5">
             {socialLinks.map(({ icon: Icon, label, href }) => (
               <a
-                key={label}
+                key={`${label}-${href}`}
                 href={href}
                 target="_blank"
                 rel="noopener noreferrer"
@@ -61,7 +62,7 @@ export default async function FollowUsSidebar() {
         <div className="flex items-center gap-3">
           {socialLinks.map(({ icon: Icon, label, href }) => (
             <a
-              key={label}
+              key={`${label}-${href}`}
               href={href}
               target="_blank"
               rel="noopener noreferrer"
