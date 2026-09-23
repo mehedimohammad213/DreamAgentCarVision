@@ -12,6 +12,7 @@ export function formatPrice(car: Car): string {
 
 export function getCarImage(car: Car): string {
   if (car.primary_photo_url) return car.primary_photo_url;
+  if (car.primary_photo?.url) return car.primary_photo.url;
   const primary = car.photos?.find((p) => p.is_primary);
   if (primary?.url) return primary.url;
   if (car.photos?.[0]?.url) return car.photos[0].url;

@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { Mail, MessageCircle, Phone, X } from "lucide-react";
 import { siteConfig } from "@/config/site";
+import { fetchCmsPageBrowser } from "@/lib/cms-browser";
+import type { CmsPage, CmsSiteSettings } from "@/lib/cms";
 
 function whatsAppUrl(phone: string, message?: string) {
   const digits = phone.replace(/\D/g, "");
@@ -14,8 +16,6 @@ function whatsAppUrl(phone: string, message?: string) {
   return `${base}?text=${encodeURIComponent(message)}`;
 }
 
-const MESSENGER_URL = "https://m.me/DreamAgentCarVision";
-
 interface InquireContactButtonProps {
   carLabel?: string;
   className?: string;
@@ -26,10 +26,37 @@ export default function InquireContactButton({
   className = "inline-flex items-center justify-center rounded-xl bg-primary px-6 py-3.5 font-semibold text-white transition-colors hover:bg-primary-dark",
 }: InquireContactButtonProps) {
   const [open, setOpen] = useState(false);
-  const { phone, email } = siteConfig.contact;
+  const [contact, setContact] = useState({
+    phone: siteConfig.contact.phone,
+    email: siteConfig.contact.email,
+    messenger: "https://m.me/DreamAgentCarVision",
+  });
   const inquiryMessage = carLabel
     ? `Hello, I would like to inquire about: ${carLabel}`
     : undefined;
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function load() {
+      const page = await fetchCmsPageBrowser<CmsPage>("site-settings");
+      if (cancelled || !page) return;
+
+      const settings = page.additional as Partial<CmsSiteSettings> | null;
+      setContact({
+        phone: settings?.contact?.phone ?? siteConfig.contact.phone,
+        email: settings?.contact?.email ?? siteConfig.contact.email,
+        messenger:
+          settings?.messenger ||
+          "https://m.me/DreamAgentCarVision",
+      });
+    }
+
+    void load();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     if (!open) return;
@@ -45,6 +72,8 @@ export default function InquireContactButton({
       window.removeEventListener("keydown", onKeyDown);
     };
   }, [open]);
+
+  const { phone, email, messenger } = contact;
 
   return (
     <>
@@ -84,43 +113,51 @@ export default function InquireContactButton({
               help you with this vehicle.
             </p>
 
-            <p className="mt-5 flex items-center gap-2 text-base font-semibold text-foreground">
-              <Phone className="h-4 w-4 shrink-0 text-primary" aria-hidden />
-              {phone}
-            </p>
+            {phone ? (
+              <p className="mt-5 flex items-center gap-2 text-base font-semibold text-foreground">
+                <Phone className="h-4 w-4 shrink-0 text-primary" aria-hidden />
+                {phone}
+              </p>
+            ) : null}
 
             <ul className="mt-6 flex flex-col gap-3">
-              <li>
-                <a
-                  href={whatsAppUrl(phone, inquiryMessage)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-3 rounded-xl border border-border bg-surface px-4 py-3.5 font-medium transition-colors hover:border-primary hover:bg-primary-light/40"
-                >
-                  <MessageCircle className="h-5 w-5 shrink-0 text-[#25D366]" />
-                  WhatsApp
-                </a>
-              </li>
-              <li>
-                <a
-                  href={MESSENGER_URL}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-3 rounded-xl border border-border bg-surface px-4 py-3.5 font-medium transition-colors hover:border-primary hover:bg-primary-light/40"
-                >
-                  <MessageCircle className="h-5 w-5 shrink-0 text-[#0084FF]" />
-                  Messenger
-                </a>
-              </li>
-              <li>
-                <a
-                  href={`mailto:${email}${carLabel ? `?subject=${encodeURIComponent(`Inquiry: ${carLabel}`)}` : ""}`}
-                  className="flex items-center gap-3 rounded-xl border border-border bg-surface px-4 py-3.5 font-medium transition-colors hover:border-primary hover:bg-primary-light/40"
-                >
-                  <Mail className="h-5 w-5 shrink-0 text-primary-dark" />
-                  Email — {email}
-                </a>
-              </li>
+              {phone ? (
+                <li>
+                  <a
+                    href={whatsAppUrl(phone, inquiryMessage)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-3 rounded-xl border border-border bg-surface px-4 py-3.5 font-medium transition-colors hover:border-primary hover:bg-primary-light/40"
+                  >
+                    <MessageCircle className="h-5 w-5 shrink-0 text-[#25D366]" />
+                    WhatsApp
+                  </a>
+                </li>
+              ) : null}
+              {messenger ? (
+                <li>
+                  <a
+                    href={messenger}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-3 rounded-xl border border-border bg-surface px-4 py-3.5 font-medium transition-colors hover:border-primary hover:bg-primary-light/40"
+                  >
+                    <MessageCircle className="h-5 w-5 shrink-0 text-[#0084FF]" />
+                    Messenger
+                  </a>
+                </li>
+              ) : null}
+              {email ? (
+                <li>
+                  <a
+                    href={`mailto:${email}${carLabel ? `?subject=${encodeURIComponent(`Inquiry: ${carLabel}`)}` : ""}`}
+                    className="flex items-center gap-3 rounded-xl border border-border bg-surface px-4 py-3.5 font-medium transition-colors hover:border-primary hover:bg-primary-light/40"
+                  >
+                    <Mail className="h-5 w-5 shrink-0 text-primary-dark" />
+                    Email — {email}
+                  </a>
+                </li>
+              ) : null}
             </ul>
           </div>
         </div>

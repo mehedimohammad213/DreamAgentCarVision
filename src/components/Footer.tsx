@@ -7,6 +7,7 @@ import { siteConfig } from "@/config/site";
 import { useCmsPage } from "@/hooks/useCmsPage";
 import {
   CMS_FOOTER_PAGE_SLUG,
+  cmsPageFetchKey,
   footerFromPage,
   type CmsPage,
   type CmsSiteSettings,
@@ -67,7 +68,10 @@ export default function Footer({
   initialPage = null,
 }: FooterProps) {
   const settings = settingsProp ?? (siteConfig as CmsSiteSettings);
-  const page = useCmsPage(CMS_FOOTER_PAGE_SLUG, initialPage);
+  const footerSlug = initialPage
+    ? cmsPageFetchKey(initialPage)
+    : CMS_FOOTER_PAGE_SLUG;
+  const page = useCmsPage(footerSlug, initialPage);
   const cms = footerFromPage(page);
 
   const phone = cms.phone || settings.contact.phone;

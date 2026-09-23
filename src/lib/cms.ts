@@ -109,7 +109,62 @@ export function headlessOf(
 ): Record<string, unknown> | null {
   const headless = component?._headless;
   if (headless && typeof headless === "object") return headless;
+
+  const mave = component?._mave;
+  if (mave && typeof mave === "object") return mave as Record<string, unknown>;
+
   return null;
+}
+
+function stringField(
+  value: unknown,
+): string | undefined {
+  return typeof value === "string" && value.trim() ? value.trim() : undefined;
+}
+
+export type CmsTitleDescription = {
+  title?: string;
+  description?: string;
+  link?: string;
+  linkLabel?: string;
+  image?: string;
+  primaryCta?: { label: string; href: string };
+  secondaryCta?: { label: string; href: string };
+};
+
+export function titleDescriptionOf(
+  component: CmsBodyComponent | null | undefined,
+): CmsTitleDescription {
+  const headless = headlessOf(component);
+  if (!headless) return {};
+
+  const primaryCta = headless.primary_cta as
+    | { label?: string; href?: string }
+    | undefined;
+  const secondaryCta = headless.secondary_cta as
+    | { label?: string; href?: string }
+    | undefined;
+
+  return {
+    title: stringField(headless.title),
+    description: stringField(headless.description) ?? textFromComponent(component) ?? undefined,
+    link: stringField(headless.link) ?? stringField(headless.url),
+    linkLabel: stringField(headless.link_label) ?? stringField(headless.label),
+    image: stringField(headless.image),
+    primaryCta:
+      primaryCta?.label && primaryCta?.href
+        ? { label: primaryCta.label, href: primaryCta.href }
+        : undefined,
+    secondaryCta:
+      secondaryCta?.label && secondaryCta?.href
+        ? { label: secondaryCta.label, href: secondaryCta.href }
+        : undefined,
+  };
+}
+
+function idsMatch(a: unknown, b: unknown): boolean {
+  if (a == null || b == null) return false;
+  return String(a) === String(b);
 }
 
 const LINKED_HEADLESS_KEYS: Partial<
@@ -135,8 +190,8 @@ export function linkedHeadlessOf(
   const componentId = component.id;
 
   if (listKey && page && componentId != null) {
-    const list = page[listKey] as { id: number }[] | undefined;
-    const live = list?.find((item) => item.id === componentId);
+    const list = page[listKey] as { id: number | string }[] | undefined;
+    const live = list?.find((item) => idsMatch(item.id, componentId));
     if (live) return live as Record<string, unknown>;
   }
 
@@ -225,8 +280,8 @@ export function heroFromPage(page: CmsPage | null): CmsHeroContent | null {
 
   const linkedSlider =
     (sliderHeadless as CmsSlider | null) ??
-    page?.sliders_headless?.find(
-      (s) => s.id === (sliderHeadless?.id as number | undefined),
+    page?.sliders_headless?.find((s) =>
+      idsMatch(s.id, sliderHeadless?.id),
     ) ??
     page?.sliders_headless?.[0];
   const slides =
@@ -488,8 +543,16 @@ export async function getCmsFollowUsLabel(): Promise<string> {
   );
 }
 
-/** CMS page id for the site footer (`/api/pages/230`). */
-export const CMS_FOOTER_PAGE_SLUG = "230";
+/** Preferred slug when multiple Footer-type pages exist. */
+export const CMS_FOOTER_PAGE_SLUG = "main-site-footer";
+
+export async function listCmsPagesByType(type: string): Promise<CmsPage[]> {
+  const data = await fetchCms<CmsPage[] | CmsPage>(
+    `/public/pages?type=${encodeURIComponent(type)}&count=100`,
+  );
+  if (!data) return [];
+  return Array.isArray(data) ? data : [data];
+}
 
 export async function getCmsFooters(): Promise<CmsFooter[]> {
   const data = await fetchCms<CmsFooter[] | CmsFooter>(`/public/footers`);
@@ -501,11 +564,20 @@ export async function getCmsFooter(): Promise<CmsFooter | null> {
   return pickCmsFooter(await getCmsFooters());
 }
 
+/** List Footer-type pages, then fetch the full page (list payloads omit `body`). */
 export async function getCmsFooterPage(): Promise<CmsPage | null> {
-  return (
-    (await getCmsPage(CMS_FOOTER_PAGE_SLUG)) ??
-    (await getCmsPage("main-site-footer"))
-  );
+  const list = await listCmsPagesByType("Footer");
+  const candidate =
+    list.find((page) => page.slug === CMS_FOOTER_PAGE_SLUG) ??
+    list.find((page) => Boolean(page.slug)) ??
+    list[0];
+
+  if (!candidate) {
+    return getCmsPage(CMS_FOOTER_PAGE_SLUG);
+  }
+
+  const key = candidate.slug || String(candidate.id);
+  return (await getCmsPage(key)) ?? candidate;
 }
 
 export type CmsFooterLink = {
@@ -617,17 +689,24 @@ export function formBuilderFromPage(page: CmsPage | null): CmsFormBuilder | null
     for (const component of section.data ?? []) {
       const c = component as {
         type?: string;
-        data?: CmsFormBuilder & { formId?: number };
+        data?: CmsFormBuilder & { formId?: number | string };
+        _headless?: CmsFormBuilder & { formId?: number | string };
       };
-      if (c.type === "form" && c.data?.elements) {
-        return {
-          id: c.data.formId ?? c.data.id,
-          title: c.data.title,
-          description: c.data.description,
-          attributes: c.data.attributes,
-          elements: c.data.elements,
-        };
-      }
+      if (c.type !== "form") continue;
+
+      const source = c.data?.elements ? c.data : c._headless;
+      if (!source?.elements?.length) continue;
+
+      const rawId = source.formId ?? source.id;
+      const id = typeof rawId === "string" ? Number(rawId) : rawId;
+
+      return {
+        id,
+        title: source.title,
+        description: source.description,
+        attributes: source.attributes,
+        elements: source.elements,
+      };
     }
   }
 
@@ -906,8 +985,102 @@ export type CmsContactPageContent = {
   businessHours?: { day: string; hours: string }[];
 };
 
+function parseBusinessHours(
+  text: string | null | undefined,
+): { day: string; hours: string }[] | undefined {
+  if (!text) return undefined;
+
+  const rows = text
+    .split(/\n+/)
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .map((line) => {
+      const parts = line.split(/\s*[—–-]\s+/);
+      if (parts.length < 2) return null;
+      return { day: parts[0].trim(), hours: parts.slice(1).join(" - ").trim() };
+    })
+    .filter((row): row is { day: string; hours: string } => Boolean(row?.day && row.hours));
+
+  return rows.length > 0 ? rows : undefined;
+}
+
+function parseOfficeDetails(
+  text: string | null | undefined,
+  name?: string,
+): CmsContactPageContent["office"] | undefined {
+  if (!text && !name) return undefined;
+
+  const lines = (text ?? "")
+    .split(/\n+/)
+    .map((line) => line.trim())
+    .filter(Boolean);
+
+  const email = lines.find((line) => line.includes("@"));
+  const phone = lines.find((line) => {
+    const digits = line.replace(/\D/g, "");
+    return digits.length >= 7 && !line.includes("@");
+  });
+  const address = lines
+    .filter((line) => line !== email && line !== phone)
+    .join(" ");
+
+  if (!name && !address && !phone && !email) return undefined;
+
+  return { name, address: address || undefined, phone, email };
+}
+
+function cardFromComponent(
+  page: CmsPage | null,
+  component: CmsBodyComponent | null,
+): CmsCard | null {
+  if (!component) return null;
+  const live = linkedHeadlessOf(page, component) as CmsCard | null;
+  if (live?.title_en || live?.description_en || live?.additional) return live;
+  return null;
+}
+
 export function contactFromPage(page: CmsPage | null): CmsContactPageContent {
-  return (page?.additional as CmsContactPageContent | undefined) ?? {};
+  const additional = (page?.additional as CmsContactPageContent | undefined) ?? {};
+  const officeDetails = textFromComponent(
+    findBodyComponent(page, "contact-office-details"),
+  );
+
+  return {
+    hero: {
+      title:
+        textFromComponent(findBodyComponent(page, "contact-hero-title")) ??
+        additional.hero?.title,
+      subtitle:
+        textFromComponent(findBodyComponent(page, "contact-hero-description")) ??
+        additional.hero?.subtitle,
+      image: additional.hero?.image,
+    },
+    help_title:
+      textFromComponent(findBodyComponent(page, "contact-help-title")) ??
+      additional.help_title,
+    help_description:
+      textFromComponent(findBodyComponent(page, "contact-help-copy")) ??
+      additional.help_description,
+    form_builder_id: additional.form_builder_id,
+    office_title:
+      textFromComponent(findBodyComponent(page, "contact-office-title")) ??
+      additional.office_title,
+    office: {
+      ...additional.office,
+      ...parseOfficeDetails(
+        officeDetails,
+        textFromComponent(findBodyComponent(page, "contact-office-name")) ??
+          additional.office?.name,
+      ),
+    },
+    hours_title:
+      textFromComponent(findBodyComponent(page, "contact-hours-title")) ??
+      additional.hours_title,
+    businessHours:
+      parseBusinessHours(
+        textFromComponent(findBodyComponent(page, "contact-hours-list")),
+      ) ?? additional.businessHours,
+  };
 }
 
 export type CmsAboutContent = {
@@ -931,8 +1104,83 @@ export type CmsAboutContent = {
   };
 };
 
+function whyBuyItemsFromPage(
+  page: CmsPage | null,
+): { icon?: string; title: string; description: string }[] {
+  const section = findBodySection(page, "section-about-why-buy");
+  const fromBody =
+    section?.data
+      ?.filter((component) => normalizeComponentType(component.type) === "card")
+      .map((component) => {
+        const card = cardFromComponent(page, component);
+        const title = card?.title_en ?? "";
+        return {
+          icon: stringField(card?.additional?.icon),
+          title,
+          description: stripHtml(card?.description_en),
+        };
+      })
+      .filter((item) => item.title) ?? [];
+
+  if (fromBody.length > 0) return fromBody;
+
+  return (
+    ((page?.additional as CmsAboutContent | undefined)?.whyBuy?.items ?? []).filter(
+      (item) => item.title,
+    )
+  );
+}
+
 export function aboutFromPage(page: CmsPage | null): CmsAboutContent {
-  return (page?.additional as CmsAboutContent | undefined) ?? {};
+  const additional = (page?.additional as CmsAboutContent | undefined) ?? {};
+  const brandsList = titleDescriptionOf(
+    findBodyComponent(page, "about-brands-list"),
+  );
+  const cta = titleDescriptionOf(findBodyComponent(page, "about-cta-block"));
+  const paragraphs = [
+    textFromComponent(findBodyComponent(page, "about-brands-p1")),
+    textFromComponent(findBodyComponent(page, "about-brands-p2")),
+  ].filter((paragraph): paragraph is string => Boolean(paragraph));
+
+  return {
+    hero: {
+      title:
+        textFromComponent(findBodyComponent(page, "about-hero-title")) ??
+        additional.hero?.title,
+      subtitle:
+        textFromComponent(findBodyComponent(page, "about-hero-description")) ??
+        additional.hero?.subtitle,
+      image: additional.hero?.image,
+    },
+    whyBuy: {
+      title:
+        textFromComponent(findBodyComponent(page, "about-why-title")) ??
+        additional.whyBuy?.title,
+      intro:
+        textFromComponent(findBodyComponent(page, "about-why-intro")) ??
+        additional.whyBuy?.intro,
+      items: whyBuyItemsFromPage(page),
+    },
+    brands: {
+      title:
+        textFromComponent(findBodyComponent(page, "about-brands-title")) ??
+        additional.brands?.title,
+      paragraphs:
+        paragraphs.length > 0 ? paragraphs : additional.brands?.paragraphs,
+      list:
+        brandsList.description
+          ?.split(",")
+          .map((item) => item.trim())
+          .filter(Boolean) ?? additional.brands?.list,
+      list_label: brandsList.title ?? additional.brands?.list_label,
+    },
+    cta: {
+      title: cta.title ?? additional.cta?.title,
+      description: cta.description ?? additional.cta?.description,
+      button_label: cta.linkLabel ?? additional.cta?.button_label,
+      button_href: cta.link ?? additional.cta?.button_href,
+    },
+  };
 }
 
 export type CmsCareerPageContent = {
@@ -946,8 +1194,96 @@ export type CmsCareerPageContent = {
   images?: { team?: string; desk?: string };
 };
 
+function emailFromText(text: string | null | undefined): string | undefined {
+  const match = text?.match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i);
+  return match?.[0];
+}
+
 export function careerFromPage(page: CmsPage | null): CmsCareerPageContent {
-  return (page?.additional as CmsCareerPageContent | undefined) ?? {};
+  const additional = (page?.additional as CmsCareerPageContent | undefined) ?? {};
+  const apply = titleDescriptionOf(findBodyComponent(page, "career-apply-cta"));
+  const team = titleDescriptionOf(findBodyComponent(page, "career-image-team"));
+  const desk = titleDescriptionOf(findBodyComponent(page, "career-image-desk"));
+
+  return {
+    hero: {
+      title: additional.hero?.title ?? page?.page_name_en,
+      subtitle: additional.hero?.subtitle,
+      image: additional.hero?.image,
+    },
+    title:
+      textFromComponent(findBodyComponent(page, "career-title")) ??
+      additional.title,
+    description:
+      textFromComponent(findBodyComponent(page, "career-description")) ??
+      additional.description,
+    email:
+      emailFromText(textFromComponent(findBodyComponent(page, "career-email"))) ??
+      additional.email,
+    apply_label: apply.title ?? additional.apply_label,
+    apply_subject: apply.description ?? additional.apply_subject,
+    accent_color: additional.accent_color,
+    images: {
+      team: team.image ?? additional.images?.team,
+      desk: desk.image ?? additional.images?.desk,
+    },
+  };
+}
+
+export type CmsFeaturedContent = {
+  title?: string;
+  subtitle?: string;
+  cta_label?: string;
+  cta_href?: string;
+};
+
+export function featuredFromPage(page: CmsPage | null): CmsFeaturedContent {
+  const additional = (page?.additional as { featured?: CmsFeaturedContent } | undefined)
+    ?.featured;
+  const cta = titleDescriptionOf(findBodyComponent(page, "home-featured-cta"));
+
+  return {
+    title:
+      textFromComponent(findBodyComponent(page, "home-featured-title")) ??
+      additional?.title,
+    subtitle:
+      textFromComponent(findBodyComponent(page, "home-featured-subtitle")) ??
+      additional?.subtitle,
+    cta_label: cta.title ?? additional?.cta_label,
+    cta_href: cta.link ?? additional?.cta_href,
+  };
+}
+
+export type CmsContactCtaContent = {
+  phone_prefix?: string;
+  description?: string;
+  button_label?: string;
+  button_href?: string;
+  image?: string;
+};
+
+export function contactCtaFromPage(page: CmsPage | null): CmsContactCtaContent {
+  const additional = (
+    page?.additional as { cta?: CmsContactCtaContent } | undefined
+  )?.cta;
+  const card =
+    cardFromComponent(page, findBodyComponent(page, "home-contact-cta-card")) ??
+    cardFromComponent(page, findBodyComponent(page, "contact-cta-card")) ??
+    page?.cards_headless?.find(
+      (item) => item.additional?.section === "contact_cta",
+    ) ??
+    null;
+
+  return {
+    phone_prefix:
+      stringField(card?.additional?.phone_prefix) ?? additional?.phone_prefix,
+    description:
+      stripHtml(card?.description_en) || additional?.description,
+    button_label:
+      stringField(card?.additional?.cta_label) ?? additional?.button_label,
+    button_href: card?.link_url ?? additional?.button_href,
+    image: stringField(card?.additional?.image) ?? additional?.image,
+  };
 }
 
 export function stripHtml(html: string | undefined | null): string {

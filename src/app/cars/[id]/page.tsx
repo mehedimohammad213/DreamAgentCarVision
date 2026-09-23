@@ -113,49 +113,79 @@ export default async function CarDetailPage({
                 ))}
               </div>
 
-              {(car.engine_cc || car.seats || car.drive || car.steering) && (
-                <div className="mt-6 rounded-xl border border-border bg-surface p-5">
-                  <h2 className="font-semibold">Additional Details</h2>
-                  <dl className="mt-3 grid grid-cols-2 gap-3 text-sm">
-                    {car.engine_cc && (
-                      <>
-                        <dt className="text-muted">Engine</dt>
-                        <dd className="font-medium">{car.engine_cc} cc</dd>
-                      </>
-                    )}
-                    {car.seats && (
-                      <>
-                        <dt className="text-muted">Seats</dt>
-                        <dd className="font-medium">{car.seats}</dd>
-                      </>
-                    )}
-                    {car.drive && (
-                      <>
-                        <dt className="text-muted">Drive</dt>
-                        <dd className="font-medium">{car.drive}</dd>
-                      </>
-                    )}
-                    {car.steering && (
-                      <>
-                        <dt className="text-muted">Steering</dt>
-                        <dd className="font-medium">{car.steering}</dd>
-                      </>
-                    )}
-                    {car.grade_overall && (
-                      <>
-                        <dt className="text-muted">Grade</dt>
-                        <dd className="font-medium">{car.grade_overall}</dd>
-                      </>
-                    )}
-                    {car.country_origin && (
-                      <>
-                        <dt className="text-muted">Origin</dt>
-                        <dd className="font-medium">{car.country_origin}</dd>
-                      </>
-                    )}
-                  </dl>
+              {(() => {
+                const extra = [
+                  car.engine_cc ? { label: "Engine", value: `${car.engine_cc} cc` } : null,
+                  car.seats ? { label: "Seats", value: String(car.seats) } : null,
+                  car.drive ? { label: "Drive", value: car.drive } : null,
+                  car.steering ? { label: "Steering", value: car.steering } : null,
+                  car.grade_overall
+                    ? { label: "Grade", value: String(car.grade_overall) }
+                    : null,
+                  car.grade_exterior
+                    ? { label: "Exterior grade", value: car.grade_exterior }
+                    : null,
+                  car.grade_interior
+                    ? { label: "Interior grade", value: car.grade_interior }
+                    : null,
+                  car.package ? { label: "Package", value: car.package } : null,
+                  car.body ? { label: "Body", value: car.body } : null,
+                  car.type ? { label: "Type", value: car.type } : null,
+                  car.chassis_no_masked
+                    ? { label: "Chassis", value: car.chassis_no_masked }
+                    : null,
+                  car.engine_number
+                    ? { label: "Engine no.", value: car.engine_number }
+                    : null,
+                  car.number_of_keys
+                    ? { label: "Keys", value: String(car.number_of_keys) }
+                    : null,
+                  car.country_origin
+                    ? { label: "Origin", value: car.country_origin }
+                    : null,
+                  car.subcategory?.name
+                    ? { label: "Subcategory", value: car.subcategory.name }
+                    : null,
+                ].filter((row): row is { label: string; value: string } =>
+                  Boolean(row?.value),
+                );
+
+                if (extra.length === 0) return null;
+
+                return (
+                  <div className="mt-6 rounded-xl border border-border bg-surface p-5">
+                    <h2 className="font-semibold">Additional Details</h2>
+                    <dl className="mt-3 grid grid-cols-2 gap-3 text-sm">
+                      {extra.map((row) => (
+                        <div key={row.label} className="contents">
+                          <dt className="text-muted">{row.label}</dt>
+                          <dd className="font-medium">{row.value}</dd>
+                        </div>
+                      ))}
+                    </dl>
+                  </div>
+                );
+              })()}
+
+              {car.keys_feature ? (
+                <div className="mt-6 rounded-xl border border-border bg-white p-5">
+                  <h2 className="font-semibold">Features</h2>
+                  <ul className="mt-3 flex flex-wrap gap-2">
+                    {car.keys_feature
+                      .split(",")
+                      .map((feature) => feature.trim())
+                      .filter(Boolean)
+                      .map((feature) => (
+                        <li
+                          key={feature}
+                          className="rounded-full border border-border bg-surface px-3 py-1 text-xs font-medium"
+                        >
+                          {feature}
+                        </li>
+                      ))}
+                  </ul>
                 </div>
-              )}
+              ) : null}
 
               {car.notes && (
                 <div className="mt-6 rounded-xl border border-border bg-white p-5">

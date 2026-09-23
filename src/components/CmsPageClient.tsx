@@ -299,9 +299,6 @@ function CmsComponentBlock({
   );
 }
 
-const DEFAULT_HERO_IMAGE =
-  "https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&w=1920&q=80";
-
 function pageHeroFromCms(page: CmsPage | null) {
   const additional = page?.additional as
     | {
@@ -326,7 +323,7 @@ function pageHeroFromCms(page: CmsPage | null) {
   const image =
     additional?.hero?.image ||
     additional?.hero_image ||
-    DEFAULT_HERO_IMAGE;
+    undefined;
 
   return { title, subtitle, image };
 }
@@ -425,16 +422,20 @@ export default function CmsPageClient({ slug, initialPage }: CmsPageClientProps)
     <div className="bg-white">
       {!hasSliderHero ? (
         <section className="relative flex min-h-[220px] items-center overflow-hidden sm:min-h-[300px] lg:min-h-[360px]">
-          <Image
-            src={hero.image}
-            alt=""
-            fill
-            priority
-            className="object-cover blur-sm scale-105"
-            sizes="100vw"
-            aria-hidden
-            unoptimized={hero.image.startsWith("http")}
-          />
+          {hero.image ? (
+            <Image
+              src={hero.image}
+              alt=""
+              fill
+              priority
+              className="object-cover blur-sm scale-105"
+              sizes="100vw"
+              aria-hidden
+              unoptimized={hero.image.startsWith("http")}
+            />
+          ) : (
+            <div className="absolute inset-0 bg-dark" />
+          )}
           <div className="absolute inset-0 bg-dark/70" />
           <div className="page-container relative">
             <h1 className="text-3xl font-bold text-white sm:text-4xl lg:text-5xl xl:text-6xl">

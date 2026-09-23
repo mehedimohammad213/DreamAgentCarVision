@@ -23,15 +23,25 @@ export interface Car {
   color?: string;
   seats?: number;
   grade_overall?: number | string;
+  grade_exterior?: string;
+  grade_interior?: string;
   price_amount?: number;
   price_currency: string;
   status: string;
   location?: string;
   country_origin?: string;
   body?: string;
+  type?: string;
+  package?: string;
+  keys_feature?: string;
+  chassis_no_masked?: string;
+  engine_number?: string;
+  number_of_keys?: number;
   notes?: string;
   category?: { id: number; name: string };
+  subcategory?: { id: number; name: string };
   photos?: CarPhoto[];
+  primary_photo?: CarPhoto;
   primary_photo_url?: string;
   price_formatted?: string;
 }

@@ -1,6 +1,6 @@
 import FeaturedCarsClient from "@/components/FeaturedCarsClient";
 import { getFeaturedCars } from "@/lib/api";
-import { getCmsPage } from "@/lib/cms";
+import { featuredFromPage, getCmsPage } from "@/lib/cms";
 
 export default async function FeaturedCars() {
   const [cars, homePage] = await Promise.all([
@@ -8,14 +8,11 @@ export default async function FeaturedCars() {
     getCmsPage("home"),
   ]);
 
-  const featured = homePage?.additional?.featured as
-    | {
-        title?: string;
-        subtitle?: string;
-        cta_label?: string;
-        cta_href?: string;
-      }
-    | undefined;
-
-  return <FeaturedCarsClient initialCars={cars} featured={featured} />;
+  return (
+    <FeaturedCarsClient
+      initialCars={cars}
+      initialPage={homePage}
+      featured={featuredFromPage(homePage)}
+    />
+  );
 }
