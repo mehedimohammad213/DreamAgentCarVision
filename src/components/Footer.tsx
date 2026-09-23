@@ -2,14 +2,13 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
 import { Headphones, ShieldCheck } from "lucide-react";
 import { siteConfig } from "@/config/site";
-import { fetchCmsBrowser } from "@/lib/cms-browser";
+import { useCmsPage } from "@/hooks/useCmsPage";
 import {
-  menuItemsFromCms,
-  pickCmsFooter,
-  type CmsFooter,
+  CMS_FOOTER_PAGE_SLUG,
+  footerFromPage,
+  type CmsPage,
   type CmsSiteSettings,
 } from "@/lib/cms";
 
@@ -58,60 +57,31 @@ function FooterLink({
   );
 }
 
-function isEnabled(value: number | boolean | undefined) {
-  return value === undefined || value === true || value === 1;
-}
-
 type FooterProps = {
   settings?: CmsSiteSettings;
-  initialFooter?: CmsFooter | null;
+  initialPage?: CmsPage | null;
 };
 
 export default function Footer({
   settings: settingsProp,
-  initialFooter = null,
+  initialPage = null,
 }: FooterProps) {
   const settings = settingsProp ?? (siteConfig as CmsSiteSettings);
-  const [cmsFooter, setCmsFooter] = useState<CmsFooter | null>(initialFooter);
+  const page = useCmsPage(CMS_FOOTER_PAGE_SLUG, initialPage);
+  const cms = footerFromPage(page);
 
-  useEffect(() => {
-    let cancelled = false;
-
-    async function loadFooters() {
-      const data = await fetchCmsBrowser<CmsFooter[] | CmsFooter>(
-        "/public/footers",
-      );
-      if (cancelled || !data) return;
-      const footer = pickCmsFooter(data);
-      if (footer) setCmsFooter(footer);
-    }
-
-    void loadFooters();
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  const phone = settings.contact.phone;
+  const phone = cms.phone || settings.contact.phone;
   const phoneHref = `tel:${phone.replace(/\s/g, "")}`;
-  const email = settings.contact.email;
+  const email = cms.email || settings.contact.email;
   const emailHref = `mailto:${email}`;
 
-  const quickLinks = menuItemsFromCms(cmsFooter?.column2_menu);
-  const helpLinks = menuItemsFromCms(cmsFooter?.column3_menu);
-  const platformLinks = menuItemsFromCms(cmsFooter?.column4_menu);
-
   const resolvedQuick =
-    isEnabled(cmsFooter?.column2_status) && quickLinks.length > 0
-      ? quickLinks
-      : fallbackQuickLinks;
+    cms.quickLinks.length > 0 ? cms.quickLinks : fallbackQuickLinks;
   const resolvedHelp =
-    isEnabled(cmsFooter?.column3_status) && helpLinks.length > 0
-      ? helpLinks
-      : fallbackHelpLinks;
+    cms.helpLinks.length > 0 ? cms.helpLinks : fallbackHelpLinks;
   const resolvedPlatform =
-    isEnabled(cmsFooter?.column4_status) && platformLinks.length > 0
-      ? platformLinks
+    cms.platformLinks.length > 0
+      ? cms.platformLinks
       : [
           {
             href: `${settings.appUrl}/login`,
@@ -120,26 +90,22 @@ export default function Footer({
           },
         ];
 
-  const officeTitle =
-    (isEnabled(cmsFooter?.address1_status) && cmsFooter?.address1_title_en) ||
-    settings.offices.corporate.name;
+  const officeTitle = cms.officeTitle || settings.offices.corporate.name;
   const officeAddress =
-    (isEnabled(cmsFooter?.address1_status) &&
-      cmsFooter?.address1_description_en) ||
-    settings.offices.corporate.address;
-
-  const contactTitle = cmsFooter?.column4_title_en || "Get In Touch";
+    cms.officeAddress || settings.offices.corporate.address;
+  const quickTitle = cms.quickTitle || "Quick Links";
+  const helpTitle = cms.helpTitle || "Can We Help?";
+  const platformTitle = cms.platformTitle || "Platform";
+  const contactTitle = cms.contactTitle || "Get In Touch";
   const contactText =
-    cmsFooter?.column4_text_en ||
+    cms.contactText ||
     `${settings.name} — car sales In Dhaka. Get in touch.`;
-  const trustBadge =
-    cmsFooter?.column4_description_en || "Trusted Dealership Platform";
+  const trustBadge = cms.trustBadge || "Trusted Dealership Platform";
+  const logoSrc = cms.logoSrc || settings.logoOnDark || settings.logo;
 
-  const logoSrc =
-    cmsFooter?.logo?.file_path || settings.logoOnDark || settings.logo;
-
-  const copyrightName = settings.name.toUpperCase();
   const year = new Date().getFullYear();
+  const copyright =
+    cms.copyright || `© ${year} ${settings.name.toUpperCase()}.`;
 
   return (
     <footer className="mt-auto bg-[#0f172a] pb-20 text-slate-300 lg:pb-0">
@@ -166,7 +132,7 @@ export default function Footer({
 
           {/* Quick links */}
           <div>
-            <h3 className="text-sm font-bold text-white">Quick Links</h3>
+            <h3 className="text-sm font-bold text-white">{quickTitle}</h3>
             <ul className="mt-4 space-y-2.5">
               {resolvedQuick.map((link) => (
                 <li key={`${link.href}-${link.label}`}>
@@ -179,7 +145,7 @@ export default function Footer({
           {/* Help + platform */}
           <div className="space-y-8">
             <div>
-              <h3 className="text-sm font-bold text-white">Can We Help?</h3>
+              <h3 className="text-sm font-bold text-white">{helpTitle}</h3>
               <ul className="mt-4 space-y-2.5">
                 {resolvedHelp.map((link) => (
                   <li key={`${link.href}-${link.label}`}>
@@ -189,7 +155,7 @@ export default function Footer({
               </ul>
             </div>
             <div>
-              <h3 className="text-sm font-bold text-white">Platform</h3>
+              <h3 className="text-sm font-bold text-white">{platformTitle}</h3>
               <ul className="mt-4 space-y-2.5">
                 {resolvedPlatform.map((link) => (
                   <li key={`${link.href}-${link.label}`}>
@@ -226,9 +192,7 @@ export default function Footer({
       {/* Bottom bar */}
       <div className="border-t border-slate-700/60">
         <div className="page-container flex flex-col gap-3 py-5 sm:flex-row sm:items-center sm:justify-between">
-          <p className="text-xs text-slate-500 sm:text-sm">
-            © {year} {copyrightName}.
-          </p>
+          <p className="text-xs text-slate-500 sm:text-sm">{copyright}</p>
           <p className="flex items-center gap-2 text-xs text-slate-500 sm:text-sm">
             <ShieldCheck className="h-4 w-4 shrink-0" />
             {trustBadge}

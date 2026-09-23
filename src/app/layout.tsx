@@ -5,7 +5,7 @@ import Footer from "@/components/Footer";
 import FollowUsSidebar from "@/components/FollowUsSidebar";
 import { siteConfig } from "@/config/site";
 import {
-  getCmsFooter,
+  getCmsFooterPage,
   getCmsNavbars,
   getCmsSiteSettings,
   navLinksFromNavbars,
@@ -53,10 +53,10 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const [settings, navbars, footer] = await Promise.all([
+  const [settings, navbars, footerPage] = await Promise.all([
     getCmsSiteSettings(),
     getCmsNavbars(),
-    getCmsFooter(),
+    getCmsFooterPage(),
   ]);
 
   const fromNav = navLinksFromNavbars(navbars);
@@ -75,7 +75,7 @@ export default async function RootLayout({
         />
         <FollowUsSidebar />
         <main className="flex-1">{children}</main>
-        <Footer settings={settings} initialFooter={footer} />
+        <Footer settings={settings} initialPage={footerPage} />
       </body>
     </html>
   );

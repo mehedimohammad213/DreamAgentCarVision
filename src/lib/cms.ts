@@ -488,6 +488,9 @@ export async function getCmsFollowUsLabel(): Promise<string> {
   );
 }
 
+/** CMS page id for the site footer (`/api/pages/230`). */
+export const CMS_FOOTER_PAGE_SLUG = "230";
+
 export async function getCmsFooters(): Promise<CmsFooter[]> {
   const data = await fetchCms<CmsFooter[] | CmsFooter>(`/public/footers`);
   if (!data) return [];
@@ -496,6 +499,111 @@ export async function getCmsFooters(): Promise<CmsFooter[]> {
 
 export async function getCmsFooter(): Promise<CmsFooter | null> {
   return pickCmsFooter(await getCmsFooters());
+}
+
+export async function getCmsFooterPage(): Promise<CmsPage | null> {
+  return (
+    (await getCmsPage(CMS_FOOTER_PAGE_SLUG)) ??
+    (await getCmsPage("main-site-footer"))
+  );
+}
+
+export type CmsFooterLink = {
+  href: string;
+  label: string;
+  external?: boolean;
+};
+
+export type CmsFooterPageContent = {
+  logoSrc: string | null;
+  officeTitle: string | null;
+  officeAddress: string | null;
+  quickTitle: string | null;
+  quickLinks: CmsFooterLink[];
+  helpTitle: string | null;
+  helpLinks: CmsFooterLink[];
+  platformTitle: string | null;
+  platformLinks: CmsFooterLink[];
+  contactTitle: string | null;
+  phone: string | null;
+  contactText: string | null;
+  email: string | null;
+  copyright: string | null;
+  trustBadge: string | null;
+};
+
+function mediaPathFromComponent(
+  component: CmsBodyComponent | null,
+): string | null {
+  const headless = headlessOf(component);
+  const fromHeadless = headless?.file_path;
+  if (typeof fromHeadless === "string" && fromHeadless.trim()) {
+    return fromHeadless;
+  }
+
+  const mave = component?._mave;
+  if (mave && typeof mave === "object" && "file_path" in mave) {
+    const fromMave = (mave as { file_path?: unknown }).file_path;
+    if (typeof fromMave === "string" && fromMave.trim()) return fromMave;
+  }
+
+  return null;
+}
+
+function menuFromFooterComponent(
+  component: CmsBodyComponent | null,
+): CmsFooterLink[] {
+  const headless = headlessOf(component);
+  const mave =
+    component?._mave && typeof component._mave === "object"
+      ? (component._mave as { menu_items?: CmsMenuItem[] })
+      : null;
+  const source = headless?.menu_items ? headless : mave;
+
+  return menuItemsFromCms(source as CmsMenu | null);
+}
+
+/** Map footer page 230 body sections onto the site footer. */
+export function footerFromPage(
+  page: CmsPage | null | undefined,
+): CmsFooterPageContent {
+  return {
+    logoSrc: mediaPathFromComponent(findBodyComponent(page, "footer-logo")),
+    officeTitle: textFromComponent(
+      findBodyComponent(page, "footer-office-title"),
+    ),
+    officeAddress: textFromComponent(
+      findBodyComponent(page, "footer-office-address"),
+    ),
+    quickTitle: textFromComponent(
+      findBodyComponent(page, "footer-quick-title"),
+    ),
+    quickLinks: menuFromFooterComponent(
+      findBodyComponent(page, "footer-quick-menu"),
+    ),
+    helpTitle: textFromComponent(findBodyComponent(page, "footer-help-title")),
+    helpLinks: menuFromFooterComponent(
+      findBodyComponent(page, "footer-help-menu"),
+    ),
+    platformTitle: textFromComponent(
+      findBodyComponent(page, "footer-platform-title"),
+    ),
+    platformLinks: menuFromFooterComponent(
+      findBodyComponent(page, "footer-platform-menu"),
+    ),
+    contactTitle: textFromComponent(
+      findBodyComponent(page, "footer-contact-title"),
+    ),
+    phone: textFromComponent(findBodyComponent(page, "footer-contact-phone")),
+    contactText: textFromComponent(
+      findBodyComponent(page, "footer-contact-copy"),
+    ),
+    email: textFromComponent(findBodyComponent(page, "footer-contact-email")),
+    copyright: textFromComponent(findBodyComponent(page, "footer-copyright")),
+    trustBadge: textFromComponent(
+      findBodyComponent(page, "footer-trust-badge"),
+    ),
+  };
 }
 
 export async function getCmsFormBuilder(id: number): Promise<CmsFormBuilder | null> {
