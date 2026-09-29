@@ -25,7 +25,7 @@ export default function FollowUsSidebar({
         aria-label="Follow us on social media"
         className="fixed right-0 top-1/2 z-40 hidden -translate-y-1/2 lg:flex"
       >
-        <div className="flex flex-col items-center gap-5 rounded-l-2xl bg-brand px-3.5 py-7 shadow-lg">
+        <div className="flex flex-col items-center gap-5 rounded-l-2xl bg-primary px-3.5 py-7 shadow-lg">
           <span
             className="text-sm font-bold uppercase tracking-widest text-white"
             style={{ writingMode: "vertical-rl", transform: "rotate(180deg)" }}
@@ -43,7 +43,7 @@ export default function FollowUsSidebar({
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label={label}
-                className="text-white transition-colors hover:text-primary"
+                className="text-white transition-colors hover:text-brand-light"
               >
                 <Icon className="h-[18px] w-[18px]" />
               </a>
@@ -67,7 +67,7 @@ export default function FollowUsSidebar({
               target="_blank"
               rel="noopener noreferrer"
               aria-label={label}
-              className="flex h-9 w-9 items-center justify-center rounded-full bg-brand text-white transition-colors hover:bg-primary"
+              className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-white transition-colors hover:bg-brand"
             >
               <Icon className="h-4 w-4" />
             </a>
