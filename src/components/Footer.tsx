@@ -36,7 +36,7 @@ function FooterLink({
   external?: boolean;
 }) {
   const className =
-    "text-sm text-white/55 transition-colors hover:text-white";
+    "text-sm text-white/70 transition-colors hover:text-white";
 
   if (external) {
     return (
@@ -105,14 +105,15 @@ export default function Footer({
     cms.contactText ||
     `${settings.name} — car sales In Dhaka. Get in touch.`;
   const trustBadge = cms.trustBadge || "Trusted Dealership Platform";
-  const logoSrc = cms.logoSrc || settings.logoOnDark || settings.logo;
+  // Always use local white logo on deep blue footer
+  const logoSrc = siteConfig.logoOnDark || "/logo-on-dark.svg";
 
   const year = new Date().getFullYear();
   const copyright =
     cms.copyright || `© ${year} ${settings.name.toUpperCase()}.`;
 
   return (
-    <footer className="mt-auto bg-dark pb-20 text-white/70 lg:pb-0">
+    <footer className="mt-auto bg-brand-dark pb-20 text-white/70 lg:pb-0">
       <div className="page-container py-12 sm:py-14">
         <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4 lg:gap-12">
           {/* Brand & address */}
@@ -128,7 +129,7 @@ export default function Footer({
             </Link>
             <div className="mt-8">
               <h3 className="text-sm font-bold text-white">{officeTitle}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-white/55">
+              <p className="mt-2 text-sm leading-relaxed text-white/70">
                 {officeAddress}
               </p>
             </div>
@@ -180,12 +181,12 @@ export default function Footer({
               <Headphones className="h-5 w-5 shrink-0 sm:h-6 sm:w-6" />
               {phone}
             </a>
-            <p className="mt-4 text-sm leading-relaxed text-white/55">
+            <p className="mt-4 text-sm leading-relaxed text-white/70">
               {contactText}
             </p>
             <a
               href={emailHref}
-              className="mt-3 inline-block text-sm text-white/55 transition-colors hover:text-white"
+              className="mt-3 inline-block text-sm text-white/70 transition-colors hover:text-white"
             >
               {email}
             </a>
@@ -194,11 +195,11 @@ export default function Footer({
       </div>
 
       {/* Bottom bar */}
-      <div className="border-t border-border">
+      <div className="border-t border-white/25">
         <div className="page-container flex flex-col gap-3 py-5 sm:flex-row sm:items-center sm:justify-between">
-          <p className="text-xs text-white/40 sm:text-sm">{copyright}</p>
-          <p className="flex items-center gap-2 text-xs text-white/40 sm:text-sm">
-            <ShieldCheck className="h-4 w-4 shrink-0 text-brand" />
+          <p className="text-xs text-white/55 sm:text-sm">{copyright}</p>
+          <p className="flex items-center gap-2 text-xs text-white/55 sm:text-sm">
+            <ShieldCheck className="h-4 w-4 shrink-0 text-white" />
             {trustBadge}
           </p>
         </div>

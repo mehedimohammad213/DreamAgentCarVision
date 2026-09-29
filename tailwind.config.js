@@ -15,11 +15,11 @@ module.exports = {
         primary: {
           DEFAULT: "#ed1c24", // Maroon
           dark: "#ed1c24",
-          light: "#ffffff",
+          light: "#f7b4b7", // Light maroon
         },
         brand: {
           DEFAULT: "#2e3192", // Blue
-          dark: "#2e3192",
+          dark: "#1a1c5c", // Deep blue
           light: "#c5c6e3", // Light blue
         },
         muted: "#231f20", // Black

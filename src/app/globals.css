@@ -13,9 +13,9 @@
   --foreground: var(--black);
   --primary: var(--maroon);
   --primary-dark: var(--maroon);
-  --primary-light: var(--white);
+  --primary-light: #f7b4b7;
   --brand: var(--blue);
-  --brand-dark: var(--blue);
+  --brand-dark: #1a1c5c;
   --brand-light: #c5c6e3;
   --muted: var(--black);
   --border: #c5c6e3;

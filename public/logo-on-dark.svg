@@ -17,16 +17,16 @@
       }
 
       .st2 {
-        stroke: #2e3192;
+        stroke: #ffffff;
       }
 
       .st2, .st4 {
-        fill: #2e3192;
+        fill: #ffffff;
       }
 
       .st3 {
-        fill: #ed1c24;
-        stroke: #ed1c24;
+        fill: #ffffff;
+        stroke: #ffffff;
       }
     </style>
   </defs>
