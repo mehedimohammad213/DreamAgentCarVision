@@ -154,20 +154,10 @@ function CmsComponentBlock({
   if (type === "slider") {
     const slider = findSliderOnPage(page, component);
     const slides = slidesFromSlider(slider);
-    const additional = slider?.additional;
 
     if (slides.length === 0) return null;
 
-    return (
-      <HeroSlider
-        slides={slides}
-        eyebrow={additional?.eyebrow}
-        headline={additional?.headline ?? slider?.title_en}
-        subheadline={additional?.subheadline ?? slider?.description_en}
-        primaryCta={additional?.primary_cta}
-        secondaryCta={additional?.secondary_cta}
-      />
-    );
+    return <HeroSlider slides={slides} />;
   }
 
   if (type === "card") {
