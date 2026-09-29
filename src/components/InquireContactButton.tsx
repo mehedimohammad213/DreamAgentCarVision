@@ -23,7 +23,7 @@ interface InquireContactButtonProps {
 
 export default function InquireContactButton({
   carLabel,
-  className = "inline-flex items-center justify-center rounded-xl bg-primary px-6 py-3.5 font-semibold text-white transition-colors hover:bg-primary-dark",
+  className = "inline-flex items-center justify-center rounded-xl bg-primary px-6 py-3.5 font-semibold text-white transition-colors hover:bg-brand",
 }: InquireContactButtonProps) {
   const [open, setOpen] = useState(false);
   const [contact, setContact] = useState({
@@ -83,7 +83,7 @@ export default function InquireContactButton({
 
       {open && (
         <div
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4"
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-dark/50 p-4"
           role="dialog"
           aria-modal="true"
           aria-labelledby="inquire-contact-title"
@@ -127,9 +127,9 @@ export default function InquireContactButton({
                     href={whatsAppUrl(phone, inquiryMessage)}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-3 rounded-xl border border-border bg-surface px-4 py-3.5 font-medium transition-colors hover:border-primary hover:bg-primary-light/40"
+                    className="flex items-center gap-3 rounded-xl border border-border bg-white px-4 py-3.5 font-medium text-dark transition-colors hover:border-primary hover:text-primary"
                   >
-                    <MessageCircle className="h-5 w-5 shrink-0 text-[#25D366]" />
+                    <MessageCircle className="h-5 w-5 shrink-0 text-brand" />
                     WhatsApp
                   </a>
                 </li>
@@ -140,9 +140,9 @@ export default function InquireContactButton({
                     href={messenger}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-3 rounded-xl border border-border bg-surface px-4 py-3.5 font-medium transition-colors hover:border-primary hover:bg-primary-light/40"
+                    className="flex items-center gap-3 rounded-xl border border-border bg-white px-4 py-3.5 font-medium text-dark transition-colors hover:border-primary hover:text-primary"
                   >
-                    <MessageCircle className="h-5 w-5 shrink-0 text-[#0084FF]" />
+                    <MessageCircle className="h-5 w-5 shrink-0 text-brand" />
                     Messenger
                   </a>
                 </li>
@@ -151,9 +151,9 @@ export default function InquireContactButton({
                 <li>
                   <a
                     href={`mailto:${email}${carLabel ? `?subject=${encodeURIComponent(`Inquiry: ${carLabel}`)}` : ""}`}
-                    className="flex items-center gap-3 rounded-xl border border-border bg-surface px-4 py-3.5 font-medium transition-colors hover:border-primary hover:bg-primary-light/40"
+                    className="flex items-center gap-3 rounded-xl border border-border bg-white px-4 py-3.5 font-medium text-dark transition-colors hover:border-primary hover:text-primary"
                   >
-                    <Mail className="h-5 w-5 shrink-0 text-primary-dark" />
+                    <Mail className="h-5 w-5 shrink-0 text-primary" />
                     Email — {email}
                   </a>
                 </li>

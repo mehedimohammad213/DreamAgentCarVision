@@ -59,7 +59,7 @@ export default function CareerPageClient({
         </div>
       </section>
 
-      <div className="bg-section-blue">
+      <div className="border-t border-border bg-white">
         <section className="page-container section-padding">
           <CareerSection
             title={title ?? ""}

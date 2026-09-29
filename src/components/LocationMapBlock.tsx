@@ -6,7 +6,7 @@ export default function LocationMapBlock({
   findUs: CmsFindUsContent;
 }) {
   return (
-    <section className="border-t border-border bg-section-grey section-padding">
+    <section className="border-t border-border bg-white section-padding">
       <div className="page-container">
         <div className="text-center">
           <p className="text-sm font-semibold uppercase tracking-wider text-brand">

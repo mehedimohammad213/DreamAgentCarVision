@@ -96,7 +96,7 @@ function CmsComponentBlock({
     if (!html && !text) return null;
     return html ? (
       <div
-        className="prose prose-slate max-w-none [&_h1]:text-3xl [&_h1]:font-bold [&_h2]:text-2xl [&_h2]:font-bold [&_h3]:text-xl [&_h3]:font-semibold"
+        className="prose prose-neutral max-w-none [&_h1]:text-3xl [&_h1]:font-bold [&_h2]:text-2xl [&_h2]:font-bold [&_h3]:text-xl [&_h3]:font-semibold"
         dangerouslySetInnerHTML={{ __html: html }}
       />
     ) : (
@@ -109,7 +109,7 @@ function CmsComponentBlock({
     if (!html) return null;
     return (
       <div
-        className="prose prose-slate max-w-none text-muted leading-relaxed"
+        className="prose prose-neutral max-w-none text-muted leading-relaxed"
         dangerouslySetInnerHTML={{ __html: html }}
       />
     );
@@ -135,14 +135,14 @@ function CmsComponentBlock({
         ) : null}
         {description ? (
           <div
-            className="prose prose-slate max-w-none text-muted leading-relaxed"
+            className="prose prose-neutral max-w-none text-muted leading-relaxed"
             dangerouslySetInnerHTML={{ __html: description }}
           />
         ) : null}
         {link ? (
           <Link
             href={link}
-            className="inline-flex font-semibold text-primary transition-colors hover:text-primary-dark"
+            className="inline-flex font-semibold text-primary transition-colors hover:text-brand"
           >
             Learn more
           </Link>
@@ -198,14 +198,14 @@ function CmsComponentBlock({
           ) : null}
           {card.description_en ? (
             <div
-              className="prose prose-sm prose-slate mt-3 max-w-none text-muted"
+              className="prose prose-sm prose-neutral mt-3 max-w-none text-muted"
               dangerouslySetInnerHTML={{ __html: card.description_en }}
             />
           ) : null}
           {card.link_url ? (
             <Link
               href={card.link_url.split("?")[0]}
-              className="mt-4 inline-flex text-sm font-semibold text-primary transition-colors hover:text-primary-dark"
+              className="mt-4 inline-flex text-sm font-semibold text-primary transition-colors hover:text-brand"
             >
               View details
             </Link>
@@ -281,7 +281,7 @@ function CmsComponentBlock({
     return (
       <Link
         href={href}
-        className="inline-flex items-center justify-center rounded-xl bg-primary px-6 py-3 font-semibold text-white transition-colors hover:bg-primary-dark"
+        className="inline-flex items-center justify-center rounded-xl bg-primary px-6 py-3 font-semibold text-white transition-colors hover:bg-brand"
       >
         {label}
       </Link>
@@ -293,7 +293,7 @@ function CmsComponentBlock({
 
   return (
     <div
-      className="prose prose-slate max-w-none"
+      className="prose prose-neutral max-w-none"
       dangerouslySetInnerHTML={{ __html: fallback }}
     />
   );

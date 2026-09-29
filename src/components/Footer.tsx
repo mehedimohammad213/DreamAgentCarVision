@@ -194,7 +194,7 @@ export default function Footer({
       </div>
 
       {/* Bottom bar */}
-      <div className="border-t border-brand/40">
+      <div className="border-t border-border">
         <div className="page-container flex flex-col gap-3 py-5 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-xs text-white/40 sm:text-sm">{copyright}</p>
           <p className="flex items-center gap-2 text-xs text-white/40 sm:text-sm">

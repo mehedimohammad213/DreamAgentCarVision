@@ -216,8 +216,8 @@ export default function CarsFilterLayout({
             className={cn(
               "inline-flex items-center gap-2 rounded-lg border px-4 py-2.5 text-sm font-bold uppercase tracking-wide transition-colors",
               open
-                ? "border-primary bg-primary-light text-primary"
-                : "border-border bg-white text-foreground hover:border-primary hover:text-primary",
+                ? "border-primary bg-primary text-white"
+                : "border-border bg-white text-dark hover:border-primary hover:text-primary",
             )}
           >
             <SlidersHorizontal className="h-4 w-4" />
@@ -227,7 +227,7 @@ export default function CarsFilterLayout({
             <button
               type="button"
               onClick={() => router.push("/cars")}
-              className="rounded-lg bg-dark px-4 py-2.5 text-sm font-bold uppercase tracking-wide text-white transition-colors hover:bg-black"
+              className="rounded-lg bg-dark px-4 py-2.5 text-sm font-bold uppercase tracking-wide text-white transition-colors hover:bg-brand"
             >
               Reset
             </button>
@@ -366,8 +366,8 @@ export default function CarsFilterLayout({
                                 className={cn(
                                   "block w-full rounded-lg px-3 py-2 text-left text-sm transition-colors",
                                   item.selected
-                                    ? "bg-primary-light font-semibold text-primary"
-                                    : "text-foreground hover:bg-surface",
+                                    ? "bg-brand font-semibold text-white"
+                                    : "text-dark hover:bg-brand hover:text-white",
                                 )}
                               >
                                 {item.label}

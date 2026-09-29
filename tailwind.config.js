@@ -11,26 +11,26 @@ module.exports = {
         xs: "475px",
       },
       colors: {
-        // Logo palette: black, white, maroon (#ed1c24), blue (#2e3192)
+        // ONLY logo colors — Black, Blue, Maroon, White
         primary: {
-          DEFAULT: "#ed1c24",
-          dark: "#c4161c",
-          light: "#fde8e9",
+          DEFAULT: "#ed1c24", // Maroon
+          dark: "#ed1c24",
+          light: "#ffffff",
         },
         brand: {
-          DEFAULT: "#2e3192",
-          dark: "#232575",
-          light: "#e8e9f4",
+          DEFAULT: "#2e3192", // Blue
+          dark: "#2e3192",
+          light: "#c5c6e3", // Light blue
         },
-        muted: "#5c5c66",
-        border: "#e4e4ea",
-        surface: "#f7f7fa",
-        foreground: "#231f20",
-        dark: "#231f20",
-        "section-blue": "#e8e9f4",
-        "section-cream": "#f7f7fa",
-        "section-grey": "#f0f0f4",
-        "section-warm": "#f7f7fa",
+        muted: "#231f20", // Black
+        border: "#c5c6e3", // Light blue
+        surface: "#ffffff", // White
+        foreground: "#231f20", // Black
+        dark: "#231f20", // Black
+        "section-blue": "#ffffff",
+        "section-cream": "#ffffff",
+        "section-grey": "#ffffff",
+        "section-warm": "#ffffff",
         "section-navy": "#2e3192",
       },
     },

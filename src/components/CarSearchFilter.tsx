@@ -142,7 +142,7 @@ export default function CarSearchFilter({
         <button
           type="submit"
           aria-label="Search cars"
-          className="inline-flex h-12 w-full items-center justify-center rounded-xl bg-primary text-white transition-colors hover:bg-primary-dark sm:w-12 sm:shrink-0 sm:rounded-full"
+          className="inline-flex h-12 w-full items-center justify-center rounded-xl bg-primary text-white transition-colors hover:bg-brand sm:w-12 sm:shrink-0 sm:rounded-full"
         >
           <Search className="h-5 w-5" />
         </button>

@@ -100,7 +100,7 @@ export default function AboutPageClient({
       {whyBuy?.title || whyBuyItems.length > 0 ? (
         <FullWidthSection
           title={whyBuy?.title ?? "Why Buy"}
-          className="bg-section-blue"
+          className="bg-white border-t border-border"
         >
           {whyBuy?.intro ? (
             <p className="mb-8 text-sm leading-relaxed text-muted">
@@ -135,7 +135,7 @@ export default function AboutPageClient({
       {brands?.title || brands?.paragraphs?.length ? (
         <SidebarSection
           title={brands?.title ?? "Brands"}
-          className="bg-section-grey"
+          className="bg-white border-t border-border"
         >
           {brands?.paragraphs?.length ? (
             <div className="space-y-4 text-sm leading-relaxed text-muted">
@@ -156,7 +156,7 @@ export default function AboutPageClient({
                 {brands.list.map((brand) => (
                   <span
                     key={brand}
-                    className="rounded-full border border-border bg-section-grey px-4 py-2 text-xs font-medium text-foreground"
+                    className="rounded-full border border-border bg-white px-4 py-2 text-xs font-medium text-dark"
                   >
                     {brand}
                   </span>
@@ -183,7 +183,7 @@ export default function AboutPageClient({
             {cta.button_href && cta.button_label ? (
               <Link
                 href={cta.button_href}
-                className="mt-6 inline-flex items-center gap-2 rounded-lg bg-primary px-8 py-3 font-semibold text-white transition-colors hover:bg-primary-dark"
+                className="mt-6 inline-flex items-center gap-2 rounded-lg bg-primary px-8 py-3 font-semibold text-white transition-colors hover:bg-brand"
               >
                 {cta.button_label}
               </Link>

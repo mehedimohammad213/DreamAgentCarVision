@@ -3,19 +3,24 @@
 @tailwind utilities;
 
 :root {
-  /* DreamAgent Car Vision — logo colors */
-  --background: #ffffff;
-  --foreground: #231f20;
-  --primary: #ed1c24;
-  --primary-dark: #c4161c;
-  --primary-light: #fde8e9;
-  --brand: #2e3192;
-  --brand-dark: #232575;
-  --brand-light: #e8e9f4;
-  --muted: #5c5c66;
-  --border: #e4e4ea;
-  --surface: #f7f7fa;
-  --dark: #231f20;
+  /* ONLY logo colors */
+  --black: #231f20;
+  --blue: #2e3192;
+  --maroon: #ed1c24;
+  --white: #ffffff;
+
+  --background: var(--white);
+  --foreground: var(--black);
+  --primary: var(--maroon);
+  --primary-dark: var(--maroon);
+  --primary-light: var(--white);
+  --brand: var(--blue);
+  --brand-dark: var(--blue);
+  --brand-light: #c5c6e3;
+  --muted: var(--black);
+  --border: #c5c6e3;
+  --surface: var(--white);
+  --dark: var(--black);
 }
 
 html {
@@ -40,7 +45,7 @@ body {
 
   .thin-scrollbar {
     scrollbar-width: thin;
-    scrollbar-color: var(--primary) transparent;
+    scrollbar-color: var(--maroon) transparent;
   }
 
   .thin-scrollbar::-webkit-scrollbar {
@@ -52,12 +57,12 @@ body {
   }
 
   .thin-scrollbar::-webkit-scrollbar-thumb {
-    background-color: var(--primary);
+    background-color: var(--maroon);
     border-radius: 9999px;
   }
 
   .thin-scrollbar::-webkit-scrollbar-thumb:hover {
-    background-color: var(--primary-dark);
+    background-color: var(--blue);
   }
 }
 

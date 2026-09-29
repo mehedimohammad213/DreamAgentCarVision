@@ -29,7 +29,7 @@ export default async function ContactCTA() {
   if (!phone && !description) return null;
 
   return (
-    <section className="bg-section-blue section-padding">
+    <section className="border-t border-border bg-white section-padding">
       <div className="page-container">
         <div className="overflow-hidden rounded-2xl bg-dark sm:rounded-3xl">
           <div className="grid md:grid-cols-5">
@@ -40,7 +40,7 @@ export default async function ContactCTA() {
                 </h2>
               ) : null}
               {description ? (
-                <p className="mt-3 max-w-md text-sm text-white/70 sm:mt-4 sm:text-base">
+                <p className="mt-3 max-w-md text-sm text-white sm:mt-4 sm:text-base">
                   {description}
                 </p>
               ) : null}

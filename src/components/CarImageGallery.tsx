@@ -119,7 +119,7 @@ export default function CarImageGallery({ images }: CarImageGalleryProps) {
 
       {lightboxOpen && (
         <div
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 p-4"
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-dark/90 p-4"
           role="dialog"
           aria-modal="true"
           aria-label="Car image gallery"
@@ -143,7 +143,7 @@ export default function CarImageGallery({ images }: CarImageGalleryProps) {
                   prev();
                 }}
                 aria-label="Previous image"
-                className="absolute left-3 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/15 text-primary transition-colors hover:bg-white/30 hover:text-primary-dark sm:left-6 sm:h-12 sm:w-12"
+                className="absolute left-3 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/15 text-primary transition-colors hover:bg-white/30 hover:text-brand sm:left-6 sm:h-12 sm:w-12"
               >
                 <ChevronLeft className="h-6 w-6" />
               </button>
@@ -154,7 +154,7 @@ export default function CarImageGallery({ images }: CarImageGalleryProps) {
                   next();
                 }}
                 aria-label="Next image"
-                className="absolute right-3 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/15 text-primary transition-colors hover:bg-white/30 hover:text-primary-dark sm:right-6 sm:h-12 sm:w-12"
+                className="absolute right-3 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/15 text-primary transition-colors hover:bg-white/30 hover:text-brand sm:right-6 sm:h-12 sm:w-12"
               >
                 <ChevronRight className="h-6 w-6" />
               </button>
@@ -178,7 +178,7 @@ export default function CarImageGallery({ images }: CarImageGalleryProps) {
           </div>
 
           {count > 1 && (
-            <p className="absolute bottom-5 left-1/2 -translate-x-1/2 rounded-full bg-black/50 px-3 py-1 text-sm text-white">
+            <p className="absolute bottom-5 left-1/2 -translate-x-1/2 rounded-full bg-dark px-3 py-1 text-sm text-white">
               {active + 1} / {count}
             </p>
           )}

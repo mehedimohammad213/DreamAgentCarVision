@@ -62,7 +62,7 @@ export default function FeaturedCarsClient({
   const ctaLabel = copy.cta_label ?? "View all";
 
   return (
-    <section className="bg-section-blue section-padding">
+    <section className="border-t border-border bg-white section-padding">
       <div className="page-container">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between sm:gap-4">
           <div>

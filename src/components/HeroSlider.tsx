@@ -76,7 +76,7 @@ export default function HeroSlider({
           </div>
         ))}
 
-        <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/55 to-black/75" />
+        <div className="absolute inset-0 bg-gradient-to-b from-dark/70 via-dark/55 to-dark/75" />
 
         <div className="relative z-10 flex min-h-[440px] items-center py-12 xs:min-h-[480px] sm:min-h-[540px] sm:py-14 lg:min-h-[600px]">
           <div className="mx-auto w-full max-w-7xl px-4 pb-16 sm:px-6 sm:pb-14 lg:px-8 lg:pb-12">

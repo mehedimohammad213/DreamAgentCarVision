@@ -90,7 +90,7 @@ export default async function CarDetailPage({
                   )}
                 </div>
                 {car.status && (
-                  <span className="shrink-0 rounded-full bg-brand-light px-3 py-1 text-xs font-semibold capitalize text-brand">
+                  <span className="shrink-0 rounded-full bg-brand px-3 py-1 text-xs font-semibold capitalize text-white">
                     {car.status}
                   </span>
                 )}

@@ -209,14 +209,14 @@ export default function ContactForm({
       <button
         type="submit"
         disabled={submitted || submitting}
-        className="rounded-lg bg-primary px-8 py-3 text-sm font-semibold uppercase tracking-wider text-white transition-colors hover:bg-primary-dark disabled:opacity-60"
+        className="rounded-lg bg-primary px-8 py-3 text-sm font-semibold uppercase tracking-wider text-white transition-colors hover:bg-brand disabled:opacity-60"
       >
         {submitted ? "Message Sent!" : submitting ? "Sending..." : submitLabel}
       </button>
 
       {error ? <p className="text-sm text-primary">{error}</p> : null}
       {submitted ? (
-        <p className="text-sm text-primary-dark">
+        <p className="text-sm text-primary">
           Thank you! We&apos;ll get back to you soon.
         </p>
       ) : null}

@@ -105,7 +105,7 @@ export default function ContactPageClient({
       {office.name || office.address || office.phone || office.email ? (
         <SidebarSection
           title={content.office_title ?? "Office"}
-          className="bg-section-blue"
+          className="bg-white border-t border-border"
         >
         <div>
           <h3 className="font-semibold">{office.name}</h3>
@@ -152,7 +152,7 @@ export default function ContactPageClient({
                   className={
                     hours === "Closed"
                       ? "text-muted"
-                      : "font-medium text-primary-dark"
+                      : "font-medium text-primary"
                   }
                 >
                   {hours}

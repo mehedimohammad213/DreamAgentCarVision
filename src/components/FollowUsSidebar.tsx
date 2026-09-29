@@ -33,7 +33,7 @@ export default function FollowUsSidebar({
             {sidebarLabel}
           </span>
 
-          <div className="h-12 w-px bg-white/40" aria-hidden />
+          <div className="h-12 w-px bg-white" aria-hidden />
 
           <div className="flex flex-col items-center gap-5">
             {socialLinks.map(({ icon: Icon, label, href }) => (
@@ -54,9 +54,9 @@ export default function FollowUsSidebar({
 
       <div
         aria-label="Follow us on social media"
-        className="fixed bottom-4 left-1/2 z-40 flex -translate-x-1/2 items-center gap-4 rounded-full border border-border bg-white/95 px-5 py-2.5 shadow-lg backdrop-blur-sm lg:hidden"
+        className="fixed bottom-4 left-1/2 z-40 flex -translate-x-1/2 items-center gap-4 rounded-full border border-border bg-white px-5 py-2.5 shadow-lg lg:hidden"
       >
-        <span className="text-xs font-bold uppercase tracking-wide text-foreground">
+        <span className="text-xs font-bold uppercase tracking-wide text-dark">
           {sidebarLabel}
         </span>
         <div className="flex items-center gap-3">
@@ -67,7 +67,7 @@ export default function FollowUsSidebar({
               target="_blank"
               rel="noopener noreferrer"
               aria-label={label}
-              className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-light text-brand transition-colors hover:bg-brand hover:text-white"
+              className="flex h-9 w-9 items-center justify-center rounded-full bg-brand text-white transition-colors hover:bg-primary"
             >
               <Icon className="h-4 w-4" />
             </a>

@@ -26,7 +26,9 @@ export default function CareerSection({
   const accentBlockClass =
     accentColor === "brand" ? "bg-brand" : "bg-primary";
   const stepsBlockClass =
-    accentColor === "brand" ? "bg-brand-light" : "bg-primary-light";
+    accentColor === "brand"
+      ? "border-2 border-border bg-white"
+      : "border-2 border-primary bg-white";
 
   return (
     <div className="grid gap-8 lg:grid-cols-2 lg:items-center lg:gap-12 xl:gap-16">
@@ -46,7 +48,7 @@ export default function CareerSection({
               E-mail:{" "}
               <a
                 href={`mailto:${email}`}
-                className="font-medium text-primary transition-colors hover:text-primary-dark"
+                className="font-medium text-primary transition-colors hover:text-brand"
               >
                 {email}
               </a>
@@ -55,7 +57,7 @@ export default function CareerSection({
           {email && applyLabel ? (
             <a
               href={`mailto:${email}?subject=${encodeURIComponent(applySubject)}`}
-              className="mt-6 inline-block bg-primary px-6 py-3 text-xs font-bold uppercase tracking-wider text-white transition-colors hover:bg-primary-dark sm:text-sm"
+              className="mt-6 inline-block bg-primary px-6 py-3 text-xs font-bold uppercase tracking-wider text-white transition-colors hover:bg-brand sm:text-sm"
             >
               {applyLabel}
             </a>
