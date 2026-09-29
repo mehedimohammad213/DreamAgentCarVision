@@ -11,7 +11,7 @@ type CareerSectionProps = {
     team: string;
     desk: string;
   };
-  accentColor?: "primary" | "amber";
+  accentColor?: "primary" | "brand";
 };
 
 export default function CareerSection({
@@ -24,9 +24,9 @@ export default function CareerSection({
   accentColor = "primary",
 }: CareerSectionProps) {
   const accentBlockClass =
-    accentColor === "amber" ? "bg-amber-400" : "bg-primary";
+    accentColor === "brand" ? "bg-brand" : "bg-primary";
   const stepsBlockClass =
-    accentColor === "amber" ? "bg-amber-100" : "bg-primary-light";
+    accentColor === "brand" ? "bg-brand-light" : "bg-primary-light";
 
   return (
     <div className="grid gap-8 lg:grid-cols-2 lg:items-center lg:gap-12 xl:gap-16">
@@ -83,7 +83,7 @@ export default function CareerSection({
         >
           <TrendingUp
             className={`h-16 w-16 sm:h-20 sm:w-20 ${
-              accentColor === "amber" ? "text-amber-600" : "text-primary"
+              accentColor === "brand" ? "text-brand" : "text-primary"
             }`}
             strokeWidth={1.5}
           />

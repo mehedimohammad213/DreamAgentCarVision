@@ -1242,7 +1242,7 @@ export type CmsCareerPageContent = {
   email?: string;
   apply_label?: string;
   apply_subject?: string;
-  accent_color?: "primary" | "amber";
+  accent_color?: "primary" | "brand" | "amber";
   images?: { team?: string; desk?: string };
 };
 

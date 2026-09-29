@@ -4,11 +4,11 @@
   <defs>
     <style>
       .st0 {
-        stroke: #fff;
+        stroke: #ffffff;
       }
 
       .st0, .st1 {
-        fill: #fff;
+        fill: #ffffff;
       }
 
       .st0, .st2, .st3 {
@@ -17,16 +17,16 @@
       }
 
       .st2 {
-        stroke: #fff;
+        stroke: #2e3192;
       }
 
       .st2, .st4 {
-        fill: #fff;
+        fill: #2e3192;
       }
 
       .st3 {
-        fill: #fff;
-        stroke: #fff;
+        fill: #ed1c24;
+        stroke: #ed1c24;
       }
     </style>
   </defs>

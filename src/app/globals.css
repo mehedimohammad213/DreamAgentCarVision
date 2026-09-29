@@ -3,11 +3,19 @@
 @tailwind utilities;
 
 :root {
+  /* DreamAgent Car Vision — logo colors */
   --background: #ffffff;
-  --foreground: #0f172a;
-  --primary: #db2d2e;
-  --primary-dark: #a81c1d;
-  --primary-light: #fbe0e0;
+  --foreground: #231f20;
+  --primary: #ed1c24;
+  --primary-dark: #c4161c;
+  --primary-light: #fde8e9;
+  --brand: #2e3192;
+  --brand-dark: #232575;
+  --brand-light: #e8e9f4;
+  --muted: #5c5c66;
+  --border: #e4e4ea;
+  --surface: #f7f7fa;
+  --dark: #231f20;
 }
 
 html {

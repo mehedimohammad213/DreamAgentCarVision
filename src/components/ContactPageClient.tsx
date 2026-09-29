@@ -83,7 +83,7 @@ export default function ContactPageClient({
             {heroTitle}
           </h1>
           {content.hero?.subtitle ? (
-            <p className="mt-3 max-w-2xl text-sm text-slate-200 sm:text-base">
+            <p className="mt-3 max-w-2xl text-sm text-white/80 sm:text-base">
               {content.hero.subtitle}
             </p>
           ) : null}

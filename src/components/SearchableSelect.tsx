@@ -119,9 +119,9 @@ export default function SearchableSelect({
       </label>
       <div
         className={cn(
-          "flex h-12 items-center rounded-xl border bg-[#1a1a1a]/90 transition-colors sm:rounded-full",
+          "flex h-12 items-center rounded-xl border bg-dark/90 transition-colors sm:rounded-full",
           disabled
-            ? "cursor-not-allowed border-white/20 bg-[#1a1a1a]/70"
+            ? "cursor-not-allowed border-white/20 bg-dark/70"
             : open || value
               ? "border-primary"
               : "border-white/25 hover:border-white/40",
@@ -175,7 +175,7 @@ export default function SearchableSelect({
           id={`${inputId}-listbox`}
           role="listbox"
           aria-label={label}
-          className="thin-scrollbar absolute left-0 right-0 z-30 mt-2 max-h-56 overflow-y-auto rounded-xl border border-white/10 bg-[#141414] py-1 shadow-2xl shadow-black/50"
+          className="thin-scrollbar absolute left-0 right-0 z-30 mt-2 max-h-56 overflow-y-auto rounded-xl border border-white/10 bg-dark py-1 shadow-2xl shadow-black/50"
         >
           {filtered.length === 0 ? (
             <li className="px-4 py-3 text-left text-sm text-white/80">

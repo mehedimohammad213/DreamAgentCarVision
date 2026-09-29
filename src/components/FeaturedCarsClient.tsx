@@ -73,7 +73,7 @@ export default function FeaturedCarsClient({
           </div>
           <Link
             href={ctaHref}
-            className="hidden items-center gap-1.5 text-sm font-semibold text-primary-dark transition-colors hover:text-primary sm:inline-flex"
+            className="hidden items-center gap-1.5 text-sm font-semibold text-brand transition-colors hover:text-primary sm:inline-flex"
           >
             {ctaLabel}
             <ArrowRight className="h-4 w-4" />
@@ -104,7 +104,7 @@ export default function FeaturedCarsClient({
         <div className="mt-8 sm:hidden">
           <Link
             href={ctaHref}
-            className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary-dark"
+            className="inline-flex items-center gap-1.5 text-sm font-semibold text-brand"
           >
             {ctaLabel}
             <ArrowRight className="h-4 w-4" />

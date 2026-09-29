@@ -90,7 +90,7 @@ export default function AboutPageClient({
             {heroTitle}
           </h1>
           {heroSubtitle ? (
-            <p className="mt-3 max-w-2xl text-sm text-slate-200 sm:text-base">
+            <p className="mt-3 max-w-2xl text-sm text-white/80 sm:text-base">
               {heroSubtitle}
             </p>
           ) : null}
@@ -100,7 +100,7 @@ export default function AboutPageClient({
       {whyBuy?.title || whyBuyItems.length > 0 ? (
         <FullWidthSection
           title={whyBuy?.title ?? "Why Buy"}
-          className="bg-section-warm"
+          className="bg-section-blue"
         >
           {whyBuy?.intro ? (
             <p className="mb-8 text-sm leading-relaxed text-muted">
@@ -115,7 +115,7 @@ export default function AboutPageClient({
                   className="rounded-2xl border border-border bg-white p-6 transition-shadow hover:shadow-lg"
                 >
                   <div className="flex items-center gap-3">
-                    <span className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-white text-sm font-bold">
+                    <span className="flex h-10 w-10 items-center justify-center rounded-full bg-brand text-white text-sm font-bold">
                       {i + 1}
                     </span>
                     <h3 className="font-semibold text-foreground">{item.title}</h3>
@@ -176,7 +176,7 @@ export default function AboutPageClient({
               </h2>
             ) : null}
             {cta.description ? (
-              <p className="mx-auto mt-4 max-w-2xl text-sm text-slate-300 sm:text-base">
+              <p className="mx-auto mt-4 max-w-2xl text-sm text-white/70 sm:text-base">
                 {cta.description}
               </p>
             ) : null}

@@ -9,7 +9,7 @@ export default function LocationMapBlock({
     <section className="border-t border-border bg-section-grey section-padding">
       <div className="page-container">
         <div className="text-center">
-          <p className="text-sm font-semibold uppercase tracking-wider text-primary">
+          <p className="text-sm font-semibold uppercase tracking-wider text-brand">
             {findUs.eyebrow}
           </p>
           <h2 className="mt-2 text-2xl font-bold text-foreground sm:text-3xl lg:text-4xl">

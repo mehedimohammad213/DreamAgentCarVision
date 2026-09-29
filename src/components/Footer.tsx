@@ -36,7 +36,7 @@ function FooterLink({
   external?: boolean;
 }) {
   const className =
-    "text-sm text-slate-400 transition-colors hover:text-white";
+    "text-sm text-white/55 transition-colors hover:text-white";
 
   if (external) {
     return (
@@ -112,7 +112,7 @@ export default function Footer({
     cms.copyright || `© ${year} ${settings.name.toUpperCase()}.`;
 
   return (
-    <footer className="mt-auto bg-[#0f172a] pb-20 text-slate-300 lg:pb-0">
+    <footer className="mt-auto bg-dark pb-20 text-white/70 lg:pb-0">
       <div className="page-container py-12 sm:py-14">
         <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4 lg:gap-12">
           {/* Brand & address */}
@@ -128,7 +128,7 @@ export default function Footer({
             </Link>
             <div className="mt-8">
               <h3 className="text-sm font-bold text-white">{officeTitle}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-slate-400">
+              <p className="mt-2 text-sm leading-relaxed text-white/55">
                 {officeAddress}
               </p>
             </div>
@@ -180,12 +180,12 @@ export default function Footer({
               <Headphones className="h-5 w-5 shrink-0 sm:h-6 sm:w-6" />
               {phone}
             </a>
-            <p className="mt-4 text-sm leading-relaxed text-slate-400">
+            <p className="mt-4 text-sm leading-relaxed text-white/55">
               {contactText}
             </p>
             <a
               href={emailHref}
-              className="mt-3 inline-block text-sm text-slate-400 transition-colors hover:text-white"
+              className="mt-3 inline-block text-sm text-white/55 transition-colors hover:text-white"
             >
               {email}
             </a>
@@ -194,11 +194,11 @@ export default function Footer({
       </div>
 
       {/* Bottom bar */}
-      <div className="border-t border-slate-700/60">
+      <div className="border-t border-brand/40">
         <div className="page-container flex flex-col gap-3 py-5 sm:flex-row sm:items-center sm:justify-between">
-          <p className="text-xs text-slate-500 sm:text-sm">{copyright}</p>
-          <p className="flex items-center gap-2 text-xs text-slate-500 sm:text-sm">
-            <ShieldCheck className="h-4 w-4 shrink-0" />
+          <p className="text-xs text-white/40 sm:text-sm">{copyright}</p>
+          <p className="flex items-center gap-2 text-xs text-white/40 sm:text-sm">
+            <ShieldCheck className="h-4 w-4 shrink-0 text-brand" />
             {trustBadge}
           </p>
         </div>

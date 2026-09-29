@@ -52,14 +52,14 @@ export default function CareerPageClient({
             {heroTitle}
           </h1>
           {content.hero?.subtitle ? (
-            <p className="mt-3 max-w-2xl text-sm text-slate-200 sm:text-base">
+            <p className="mt-3 max-w-2xl text-sm text-white/80 sm:text-base">
               {content.hero.subtitle}
             </p>
           ) : null}
         </div>
       </section>
 
-      <div className="bg-section-warm">
+      <div className="bg-section-blue">
         <section className="page-container section-padding">
           <CareerSection
             title={title ?? ""}
@@ -67,7 +67,11 @@ export default function CareerPageClient({
             email={email}
             applyLabel={content.apply_label ?? "Apply"}
             applySubject={content.apply_subject ?? "Career Application"}
-            accentColor={content.accent_color ?? "primary"}
+            accentColor={
+              content.accent_color === "brand" || content.accent_color === "amber"
+                ? "brand"
+                : "primary"
+            }
             images={{
               team: content.images?.team ?? "",
               desk: content.images?.desk ?? "",

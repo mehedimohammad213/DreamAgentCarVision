@@ -120,7 +120,7 @@ export default function CarSearchFilter({
 
       <form
         onSubmit={handleSearch}
-        className="relative z-20 mt-8 flex flex-col gap-3 rounded-2xl bg-black/55 p-3 backdrop-blur-md sm:flex-row sm:items-start sm:rounded-full sm:p-2"
+        className="relative z-20 mt-8 flex flex-col gap-3 rounded-2xl bg-dark/55 p-3 backdrop-blur-md sm:flex-row sm:items-start sm:rounded-full sm:p-2"
       >
         <SearchableSelect
           label="Brand"

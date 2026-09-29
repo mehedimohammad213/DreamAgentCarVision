@@ -90,13 +90,13 @@ export default async function CarDetailPage({
                   )}
                 </div>
                 {car.status && (
-                  <span className="shrink-0 rounded-full bg-primary-light px-3 py-1 text-xs font-semibold capitalize text-primary-dark">
+                  <span className="shrink-0 rounded-full bg-brand-light px-3 py-1 text-xs font-semibold capitalize text-brand">
                     {car.status}
                   </span>
                 )}
               </div>
 
-              <p className="mt-4 text-2xl font-bold text-primary-dark sm:mt-6 sm:text-3xl">
+              <p className="mt-4 text-2xl font-bold text-primary sm:mt-6 sm:text-3xl">
                 {formatPrice(car)}
               </p>
 

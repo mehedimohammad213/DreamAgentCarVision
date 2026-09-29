@@ -109,7 +109,7 @@ export default function CarsPageClient({
           options={filterOptions}
           heading={
             <div>
-              <h1 className="text-2xl font-bold tracking-tight text-primary sm:text-3xl">
+              <h1 className="text-2xl font-bold tracking-tight text-brand sm:text-3xl">
                 Car Inventory
               </h1>
               <p className="mt-0.5 text-sm font-medium text-muted">

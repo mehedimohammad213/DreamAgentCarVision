@@ -39,14 +39,14 @@ function navLinkClasses(pathname: string, href: string, variant: "desktop" | "mo
     return cn(
       "relative px-3.5 py-2 text-sm font-bold transition-colors",
       active
-        ? "text-primary after:absolute after:bottom-0 after:left-1/2 after:h-1.5 after:w-1.5 after:-translate-x-1/2 after:rounded-full after:bg-primary after:content-['']"
-        : "text-foreground/80 hover:text-primary",
+        ? "text-brand after:absolute after:bottom-0 after:left-1/2 after:h-1.5 after:w-1.5 after:-translate-x-1/2 after:rounded-full after:bg-primary after:content-['']"
+        : "text-foreground/80 hover:text-brand",
     );
   }
 
   return cn(
     "rounded-lg px-3 py-2.5 text-sm font-bold transition-colors",
-    active ? "text-primary" : "text-muted hover:text-primary",
+    active ? "text-brand" : "text-muted hover:text-brand",
   );
 }
 
@@ -234,7 +234,7 @@ export default function Header({
         <div className="hidden items-center gap-3 lg:flex xl:gap-4">
           <a
             href={`tel:${phone.replace(/\s/g, "")}`}
-            className="flex items-center gap-2 text-sm font-bold text-foreground/80 transition-colors hover:text-primary"
+            className="flex items-center gap-2 text-sm font-bold text-foreground/80 transition-colors hover:text-brand"
           >
             <Phone className="h-4 w-4 stroke-[2.5]" />
             <span className="hidden xl:inline">{phone}</span>
@@ -248,7 +248,7 @@ export default function Header({
               aria-expanded={searchOpen}
               className={cn(
                 "rounded-lg p-2 transition-colors",
-                searchOpen ? "text-primary" : "text-foreground/80 hover:text-primary",
+                searchOpen ? "text-brand" : "text-foreground/80 hover:text-brand",
               )}
             >
               <Search className="h-5 w-5 stroke-[2.5]" />
@@ -263,7 +263,7 @@ export default function Header({
         <div className="flex items-center gap-1 lg:hidden">
           <a
             href={`tel:${phone.replace(/\s/g, "")}`}
-            className="rounded-lg p-2 text-foreground/80 transition-colors hover:text-primary"
+            className="rounded-lg p-2 text-foreground/80 transition-colors hover:text-brand"
             aria-label={`Call ${phone}`}
           >
             <Phone className="h-5 w-5 stroke-[2.5]" />
@@ -294,7 +294,7 @@ export default function Header({
             ))}
             <a
               href={`tel:${phone.replace(/\s/g, "")}`}
-              className="mt-2 flex items-center gap-2 rounded-lg px-3 py-2.5 text-sm font-bold text-foreground/80 transition-colors hover:text-primary"
+              className="mt-2 flex items-center gap-2 rounded-lg px-3 py-2.5 text-sm font-bold text-foreground/80 transition-colors hover:text-brand"
             >
               <Phone className="h-4 w-4 stroke-[2.5]" />
               {phone}

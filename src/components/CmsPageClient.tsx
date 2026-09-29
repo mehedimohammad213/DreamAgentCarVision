@@ -442,7 +442,7 @@ export default function CmsPageClient({ slug, initialPage }: CmsPageClientProps)
               {hero.title}
             </h1>
             {hero.subtitle ? (
-              <p className="mt-3 max-w-2xl text-sm text-slate-200 sm:text-base">
+              <p className="mt-3 max-w-2xl text-sm text-white/80 sm:text-base">
                 {hero.subtitle}
               </p>
             ) : null}

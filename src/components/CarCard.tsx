@@ -27,7 +27,7 @@ export default function CarCard({ car, href }: CarCardProps) {
           unoptimized={image.startsWith("http")}
         />
         {car.status && (
-          <span className="absolute left-3 top-3 rounded-full bg-white/90 px-2.5 py-1 text-xs font-semibold capitalize text-primary-dark backdrop-blur-sm">
+          <span className="absolute left-3 top-3 rounded-full bg-white/90 px-2.5 py-1 text-xs font-semibold capitalize text-brand backdrop-blur-sm">
             {car.status}
           </span>
         )}
@@ -44,7 +44,7 @@ export default function CarCard({ car, href }: CarCardProps) {
               {car.variant ? ` ${car.variant}` : ""}
             </h3>
           </div>
-          <p className="text-lg font-bold text-primary-dark sm:shrink-0">
+          <p className="text-lg font-bold text-primary sm:shrink-0">
             {formatPrice(car)}
           </p>
         </div>
