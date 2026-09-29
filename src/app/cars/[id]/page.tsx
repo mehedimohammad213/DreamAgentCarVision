@@ -51,7 +51,7 @@ export default async function CarDetailPage({
 
   return (
     <>
-      <section className="border-b border-border bg-surface py-4 sm:py-6">
+      <section className="bg-surface py-4 sm:py-6">
         <div className="page-container">
           <Link
             href="/cars"

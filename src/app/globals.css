@@ -27,7 +27,7 @@ html {
   scroll-behavior: smooth;
   -webkit-text-size-adjust: 100%;
   scrollbar-width: thin;
-  scrollbar-color: var(--maroon) transparent;
+  scrollbar-color: color-mix(in srgb, var(--maroon) 55%, transparent) transparent;
 }
 
 body {
@@ -36,28 +36,24 @@ body {
   overflow-x: hidden;
 }
 
-/* Maroon scrollbars site-wide (Firefox + WebKit) */
-* {
-  scrollbar-width: thin;
-  scrollbar-color: var(--maroon) transparent;
+/* Subtle maroon page scrollbar — avoid a solid side border look */
+html::-webkit-scrollbar {
+  width: 6px;
 }
 
-*::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-*::-webkit-scrollbar-track {
+html::-webkit-scrollbar-track {
   background: transparent;
 }
 
-*::-webkit-scrollbar-thumb {
-  background-color: var(--maroon);
+html::-webkit-scrollbar-thumb {
+  background-color: color-mix(in srgb, var(--maroon) 55%, transparent);
   border-radius: 9999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
 }
 
-*::-webkit-scrollbar-thumb:hover {
-  background-color: #c4161c;
+html::-webkit-scrollbar-thumb:hover {
+  background-color: var(--maroon);
 }
 
 @layer utilities {
@@ -71,7 +67,7 @@ body {
 
   .thin-scrollbar {
     scrollbar-width: thin;
-    scrollbar-color: var(--maroon) transparent;
+    scrollbar-color: color-mix(in srgb, var(--maroon) 55%, transparent) transparent;
   }
 
   .thin-scrollbar::-webkit-scrollbar {
@@ -83,12 +79,12 @@ body {
   }
 
   .thin-scrollbar::-webkit-scrollbar-thumb {
-    background-color: var(--maroon);
+    background-color: color-mix(in srgb, var(--maroon) 55%, transparent);
     border-radius: 9999px;
   }
 
   .thin-scrollbar::-webkit-scrollbar-thumb:hover {
-    background-color: #c4161c;
+    background-color: var(--maroon);
   }
 }
 
