@@ -119,8 +119,8 @@ export default async function CarDetailPage({
                   car.seats ? { label: "Seats", value: String(car.seats) } : null,
                   car.drive ? { label: "Drive", value: car.drive } : null,
                   car.steering ? { label: "Steering", value: car.steering } : null,
-                  car.grade_overall
-                    ? { label: "Grade", value: String(car.grade_overall) }
+                  car.transmission
+                    ? { label: "Transmission", value: car.transmission }
                     : null,
                   car.grade_exterior
                     ? { label: "Exterior grade", value: car.grade_exterior }
