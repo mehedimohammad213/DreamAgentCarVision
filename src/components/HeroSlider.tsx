@@ -18,7 +18,7 @@ interface HeroSliderProps {
   filterOptions: FilterOptions;
 }
 
-const SLIDE_INTERVAL = 5000;
+const SLIDE_INTERVAL = 4000;
 
 export default function HeroSlider({
   slides,
@@ -36,13 +36,24 @@ export default function HeroSlider({
     [count],
   );
 
-  const next = useCallback(() => goTo(active + 1), [active, goTo]);
-  const prev = useCallback(() => goTo(active - 1), [active, goTo]);
+  const next = useCallback(() => {
+    setActive((prev) => (count <= 1 ? prev : (prev + 1) % count));
+  }, [count]);
+
+  const prev = useCallback(() => {
+    setActive((prev) => (count <= 1 ? prev : (prev - 1 + count) % count));
+  }, [count]);
 
   useEffect(() => {
     if (count <= 1 || isPaused) return;
-    const timer = setInterval(next, SLIDE_INTERVAL);
-    return () => clearInterval(timer);
+
+    const reducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+    if (reducedMotion) return;
+
+    const timer = window.setInterval(next, SLIDE_INTERVAL);
+    return () => window.clearInterval(timer);
   }, [count, isPaused, next]);
 
   if (count === 0) return null;
@@ -50,9 +61,8 @@ export default function HeroSlider({
   return (
     <section
       className="relative w-full overflow-hidden bg-dark"
-      onMouseEnter={() => setIsPaused(true)}
-      onMouseLeave={() => setIsPaused(false)}
       aria-label="Find your car"
+      aria-roledescription="carousel"
     >
       <div className="relative min-h-[440px] w-full xs:min-h-[480px] sm:min-h-[540px] lg:min-h-[600px]">
         {slides.map((slide, index) => (
@@ -85,7 +95,17 @@ export default function HeroSlider({
         </div>
 
         {count > 1 && (
-          <div className="absolute inset-x-0 bottom-4 z-20 sm:bottom-6">
+          <div
+            className="absolute inset-x-0 bottom-4 z-20 sm:bottom-6"
+            onMouseEnter={() => setIsPaused(true)}
+            onMouseLeave={() => setIsPaused(false)}
+            onFocusCapture={() => setIsPaused(true)}
+            onBlurCapture={(event) => {
+              if (!event.currentTarget.contains(event.relatedTarget as Node)) {
+                setIsPaused(false);
+              }
+            }}
+          >
             <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
               <div className="flex min-w-0 flex-1 gap-1.5 overflow-x-auto pb-1 sm:gap-2">
                 {slides.map((slide, index) => (
