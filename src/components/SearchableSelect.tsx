@@ -121,7 +121,7 @@ export default function SearchableSelect({
         className={cn(
           "flex h-12 items-center rounded-xl border bg-[#1a1a1a]/90 transition-colors sm:rounded-full",
           disabled
-            ? "cursor-not-allowed border-white/10 opacity-50"
+            ? "cursor-not-allowed border-white/20 bg-[#1a1a1a]/70"
             : open || value
               ? "border-primary"
               : "border-white/25 hover:border-white/40",
@@ -147,8 +147,7 @@ export default function SearchableSelect({
           onClick={openMenu}
           onKeyDown={handleKeyDown}
           className={cn(
-            "h-full min-w-0 flex-1 bg-transparent px-4 text-left text-sm text-white outline-none placeholder:text-white",
-            disabled && "cursor-not-allowed",
+            "h-full min-w-0 flex-1 bg-transparent px-4 text-left text-sm text-white outline-none placeholder:text-white placeholder:opacity-100 disabled:cursor-not-allowed disabled:opacity-100 disabled:text-white/90 disabled:placeholder:text-white/90",
           )}
         />
         {value && !disabled ? (
@@ -163,8 +162,9 @@ export default function SearchableSelect({
         ) : (
           <ChevronDown
             className={cn(
-              "pointer-events-none mr-3 h-4 w-4 shrink-0 text-white/70 transition-transform",
+              "pointer-events-none mr-3 h-4 w-4 shrink-0 text-white transition-transform",
               open && "rotate-180",
+              disabled && "text-white/80",
             )}
           />
         )}
@@ -178,7 +178,7 @@ export default function SearchableSelect({
           className="thin-scrollbar absolute left-0 right-0 z-30 mt-2 max-h-56 overflow-y-auto rounded-xl border border-white/10 bg-[#141414] py-1 shadow-2xl shadow-black/50"
         >
           {filtered.length === 0 ? (
-            <li className="px-4 py-3 text-left text-sm text-white/50">
+            <li className="px-4 py-3 text-left text-sm text-white/80">
               No matches
             </li>
           ) : (
@@ -200,7 +200,7 @@ export default function SearchableSelect({
                     {typeof option.count === "number" ? (
                       <span
                         className={cn(
-                          isActive ? "text-primary" : "text-white/55",
+                          isActive ? "text-primary" : "text-white/80",
                         )}
                       >
                         ({option.count})

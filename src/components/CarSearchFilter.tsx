@@ -107,7 +107,7 @@ export default function CarSearchFilter({
               "relative text-sm font-semibold transition-colors sm:text-base",
               condition === item
                 ? "text-primary"
-                : "text-white/90 hover:text-white",
+                : "text-white hover:text-white",
             )}
           >
             {item}
@@ -149,7 +149,7 @@ export default function CarSearchFilter({
       </form>
 
       <div className="mt-8 pb-2 sm:mt-10">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-white/55">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-white/90">
           Authorized Dealer For
         </p>
         <div className="mt-5 flex flex-wrap items-center justify-center gap-x-10 gap-y-5 sm:gap-x-14">
@@ -162,11 +162,11 @@ export default function CarSearchFilter({
                 onClick={() =>
                   router.push(buildCarsUrl({ make: brand, model: "" }))
                 }
-                className="group inline-flex items-center justify-center text-white/85 transition-all hover:scale-105 hover:text-white"
+                className="group inline-flex items-center justify-center text-white transition-all hover:scale-105"
                 aria-label={`Browse ${brand} cars`}
               >
                 {logoSrc ? (
-                  <span className="relative h-10 w-10 opacity-90 transition-opacity group-hover:opacity-100 sm:h-12 sm:w-12">
+                  <span className="relative h-10 w-10 sm:h-12 sm:w-12">
                     <Image
                       src={logoSrc}
                       alt={`${brand} logo`}
