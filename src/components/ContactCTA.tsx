@@ -1,75 +1,59 @@
-import Image from "next/image";
-import Link from "next/link";
-import { ArrowRight } from "lucide-react";
-import { contactCtaFromPage, getCmsPage, getCmsSiteSettings } from "@/lib/cms";
+import BrandLogoCarousel, {
+  type BrandLogoItem,
+} from "@/components/BrandLogoCarousel";
+import { getFilterOptions } from "@/lib/api";
+import { aboutFromPage, getCmsPage } from "@/lib/cms";
 
+const BRAND_LOGOS: Record<string, string> = {
+  Honda: "/brands/honda.svg",
+  Nissan: "/brands/nissan.svg",
+  Toyota: "/brands/toyota.svg",
+};
+
+const FALLBACK_BRANDS = [
+  "Honda",
+  "Nissan",
+  "Toyota",
+  "Suzuki",
+  "Mazda",
+  "Subaru",
+  "Mitsubishi",
+  "Lexus",
+];
+
+function toBrandItems(names: string[]): BrandLogoItem[] {
+  const unique = Array.from(
+    new Set(names.map((name) => name.trim()).filter(Boolean)),
+  );
+  return unique.map((name) => {
+    const logoKey = Object.keys(BRAND_LOGOS).find(
+      (key) => key.toLowerCase() === name.toLowerCase(),
+    );
+    return {
+      name,
+      logo: logoKey ? BRAND_LOGOS[logoKey] : null,
+    };
+  });
+}
+
+/** Replaces the old contact CTA with a brand logo carousel. */
 export default async function ContactCTA() {
-  const [settings, contactPage, homePage] = await Promise.all([
-    getCmsSiteSettings(),
-    getCmsPage("contact"),
-    getCmsPage("home"),
+  const [filterOptions, aboutPage] = await Promise.all([
+    getFilterOptions(),
+    getCmsPage("about"),
   ]);
 
-  const cta = {
-    ...contactCtaFromPage(homePage),
-    ...Object.fromEntries(
-      Object.entries(contactCtaFromPage(contactPage)).filter(
-        ([, value]) => Boolean(value),
-      ),
-    ),
-  };
+  const aboutBrands = aboutFromPage(aboutPage).brands?.list ?? [];
+  const apiMakes = filterOptions.makes ?? [];
 
-  const phone = settings.contact.phone;
-  const phonePrefix = cta.phone_prefix ?? "Call @";
-  const description = cta.description;
-  const ctaLabel = cta.button_label ?? "Contact Us";
-  const ctaHref = cta.button_href ?? "/contact";
-  const image = cta.image;
+  const brandNames =
+    aboutBrands.length > 0
+      ? aboutBrands
+      : apiMakes.length > 0
+        ? apiMakes
+        : FALLBACK_BRANDS;
 
-  if (!phone && !description) return null;
+  const brands = toBrandItems(brandNames);
 
-  return (
-    <section className="border-t border-border bg-white section-padding">
-      <div className="page-container">
-        <div className="overflow-hidden rounded-2xl bg-dark sm:rounded-3xl">
-          <div className="grid md:grid-cols-5">
-            <div className="flex flex-col justify-center px-6 py-10 sm:px-10 sm:py-12 md:col-span-3 lg:px-12 lg:py-16">
-              {phone ? (
-                <h2 className="text-2xl font-bold text-white sm:text-3xl lg:text-4xl">
-                  {phonePrefix} {phone}
-                </h2>
-              ) : null}
-              {description ? (
-                <p className="mt-3 max-w-md text-sm text-white sm:mt-4 sm:text-base">
-                  {description}
-                </p>
-              ) : null}
-              <Link
-                href={ctaHref}
-                className="mt-6 inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-primary transition-colors hover:text-white"
-              >
-                {ctaLabel}
-                <ArrowRight className="h-4 w-4" />
-              </Link>
-            </div>
-            {image ? (
-              <div className="relative min-h-[200px] md:col-span-2 md:min-h-[280px]">
-                <Image
-                  src={image}
-                  alt=""
-                  fill
-                  className="object-cover object-center"
-                  sizes="(max-width: 768px) 100vw, 40vw"
-                  unoptimized={image.startsWith("http")}
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-dark via-dark/20 to-transparent md:bg-gradient-to-r md:from-dark md:via-dark/40 md:to-transparent" />
-              </div>
-            ) : (
-              <div className="min-h-[200px] bg-dark md:col-span-2 md:min-h-[280px]" />
-            )}
-          </div>
-        </div>
-      </div>
-    </section>
-  );
+  return <BrandLogoCarousel brands={brands} />;
 }
