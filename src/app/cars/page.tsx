@@ -14,7 +14,7 @@ interface CarsPageProps {
     make?: string;
     model?: string;
     year?: string;
-    category_id?: string;
+    body?: string;
     fuel?: string;
     transmission?: string;
     price_from?: string;
@@ -34,7 +34,7 @@ export default async function CarsPage({ searchParams: params }: CarsPageProps) 
       make: params.make,
       model: params.model,
       year: params.year,
-      category_id: params.category_id,
+      body: params.body,
       fuel: params.fuel,
       transmission: params.transmission,
       price_from: params.price_from,

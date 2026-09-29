@@ -43,6 +43,7 @@ export interface CarQueryParams {
   year?: string;
   status?: string;
   category_id?: string;
+  body?: string;
   transmission?: string;
   fuel?: string;
   color?: string;
@@ -52,8 +53,24 @@ export interface CarQueryParams {
   sort_direction?: string;
 }
 
-export async function getCars(
-  params?: CarQueryParams,
+function paginateCars(
+  cars: Car[],
+  page = 1,
+  perPage = 15,
+): { cars: Car[]; total: number; lastPage: number } {
+  const total = cars.length;
+  const lastPage = Math.max(1, Math.ceil(total / perPage));
+  const safePage = Math.min(Math.max(page, 1), lastPage);
+  const start = (safePage - 1) * perPage;
+  return {
+    cars: cars.slice(start, start + perPage),
+    total,
+    lastPage,
+  };
+}
+
+async function fetchCarsFromApi(
+  params?: Omit<CarQueryParams, "body">,
 ): Promise<{ cars: Car[]; total: number; lastPage: number }> {
   const query = new URLSearchParams();
   Object.entries(params ?? {}).forEach(([key, value]) => {
@@ -63,6 +80,34 @@ export async function getCars(
   const qs = query.toString();
   const response = await fetchApi<CarsApiResponse>(`/cars${qs ? `?${qs}` : ""}`);
   return normalizeCarsResponse(response);
+}
+
+/** Inventory API ignores `body`; filter client-side when needed. */
+export async function getCars(
+  params?: CarQueryParams,
+): Promise<{ cars: Car[]; total: number; lastPage: number }> {
+  const { body, page = 1, per_page = 15, ...apiParams } = params ?? {};
+
+  if (!body) {
+    return fetchCarsFromApi({ ...apiParams, page, per_page });
+  }
+
+  const first = await fetchCarsFromApi({ ...apiParams, page: 1, per_page: 100 });
+  const pages =
+    first.lastPage <= 1
+      ? []
+      : await Promise.all(
+          Array.from({ length: first.lastPage - 1 }, (_, i) =>
+            fetchCarsFromApi({ ...apiParams, page: i + 2, per_page: 100 }),
+          ),
+        );
+
+  const allCars = [first.cars, ...pages.map((p) => p.cars)].flat();
+  const filtered = allCars.filter(
+    (car) => car.body?.trim().toLowerCase() === body.trim().toLowerCase(),
+  );
+
+  return paginateCars(filtered, page, per_page);
 }
 
 export interface FilterOptions {
@@ -76,6 +121,7 @@ export interface FilterOptions {
   transmissions: string[];
   fuels: string[];
   colors: string[];
+  bodies: string[];
   categories: { id: number; name: string }[];
 }
 
@@ -136,13 +182,37 @@ export function makeModelOptionsFromCars(cars: Car[]): {
   };
 }
 
+/** Build all sidebar filter lists from live inventory (no static categories). */
+export function filterOptionsFromCars(cars: Car[]): FilterOptions {
+  const makeModel = makeModelOptionsFromCars(cars);
+  const years = [
+    ...new Set(
+      cars
+        .map((car) => car.year)
+        .filter((year): year is number => typeof year === "number" && year > 0),
+    ),
+  ].sort((a, b) => b - a);
+
+  return {
+    ...makeModel,
+    years,
+    transmissions: uniqueSorted(
+      cars.map((car) => car.transmission?.trim() ?? ""),
+    ),
+    fuels: uniqueSorted(cars.map((car) => car.fuel?.trim() ?? "")),
+    colors: uniqueSorted(cars.map((car) => car.color?.trim() ?? "")),
+    bodies: uniqueSorted(cars.map((car) => car.body?.trim() ?? "")),
+    categories: [],
+  };
+}
+
 async function getAllCarsForFilters(): Promise<Car[]> {
-  const first = await getCars({ page: 1, per_page: 100 });
+  const first = await fetchCarsFromApi({ page: 1, per_page: 100 });
   if (first.lastPage <= 1) return first.cars;
 
   const pages = await Promise.all(
     Array.from({ length: first.lastPage - 1 }, (_, i) =>
-      getCars({ page: i + 2, per_page: 100 }),
+      fetchCarsFromApi({ page: i + 2, per_page: 100 }),
     ),
   );
 
@@ -150,37 +220,8 @@ async function getAllCarsForFilters(): Promise<Car[]> {
 }
 
 export async function getFilterOptions(): Promise<FilterOptions> {
-  const [response, cars] = await Promise.all([
-    fetchApi<{
-      success: boolean;
-      data: Partial<FilterOptions>;
-    }>("/cars/filter/options"),
-    getAllCarsForFilters(),
-  ]);
-
-  const fromCars = makeModelOptionsFromCars(cars);
-  const makes = uniqueSorted([
-    ...(response?.data?.makes ?? []),
-    ...fromCars.makes,
-  ]);
-  const models = uniqueSorted([
-    ...(response?.data?.models ?? []),
-    ...fromCars.models,
-  ]);
-
-  return {
-    makes: makes.length > 0 ? makes : fromCars.makes,
-    models: models.length > 0 ? models : fromCars.models,
-    modelsByMake: fromCars.modelsByMake,
-    makeCounts: fromCars.makeCounts,
-    modelCounts: fromCars.modelCounts,
-    modelCountsByMake: fromCars.modelCountsByMake,
-    years: response?.data?.years ?? [],
-    transmissions: response?.data?.transmissions ?? [],
-    fuels: response?.data?.fuels ?? [],
-    colors: response?.data?.colors ?? [],
-    categories: response?.data?.categories ?? [],
-  };
+  const cars = await getAllCarsForFilters();
+  return filterOptionsFromCars(cars);
 }
 
 export async function getCar(id: string): Promise<Car | null> {

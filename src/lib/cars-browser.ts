@@ -6,7 +6,7 @@
 import { siteConfig } from "@/config/site";
 import type { Car, CarsApiResponse } from "@/lib/types";
 import {
-  makeModelOptionsFromCars,
+  filterOptionsFromCars,
   type CarQueryParams,
   type FilterOptions,
 } from "@/lib/api";
@@ -44,7 +44,7 @@ function normalizeCarsResponse(response: CarsApiResponse | null): {
   };
 }
 
-function buildCarsQuery(params?: CarQueryParams): string {
+function buildCarsQuery(params?: Omit<CarQueryParams, "body">): string {
   const query = new URLSearchParams();
   Object.entries(params ?? {}).forEach(([key, value]) => {
     if (value !== undefined && value !== "") query.set(key, String(value));
@@ -53,7 +53,25 @@ function buildCarsQuery(params?: CarQueryParams): string {
   return qs ? `?${qs}` : "";
 }
 
-export async function fetchCarsBrowser(params?: CarQueryParams): Promise<{
+function paginateCars(
+  cars: Car[],
+  page = 1,
+  perPage = 15,
+): { cars: Car[]; total: number; lastPage: number } {
+  const total = cars.length;
+  const lastPage = Math.max(1, Math.ceil(total / perPage));
+  const safePage = Math.min(Math.max(page, 1), lastPage);
+  const start = (safePage - 1) * perPage;
+  return {
+    cars: cars.slice(start, start + perPage),
+    total,
+    lastPage,
+  };
+}
+
+async function fetchCarsFromApi(
+  params?: Omit<CarQueryParams, "body">,
+): Promise<{
   cars: Car[];
   total: number;
   lastPage: number;
@@ -64,19 +82,42 @@ export async function fetchCarsBrowser(params?: CarQueryParams): Promise<{
   return normalizeCarsResponse(response);
 }
 
-function uniqueSorted(values: Iterable<string>): string[] {
-  return [...new Set([...values].filter(Boolean))].sort((a, b) =>
-    a.localeCompare(b),
+export async function fetchCarsBrowser(params?: CarQueryParams): Promise<{
+  cars: Car[];
+  total: number;
+  lastPage: number;
+}> {
+  const { body, page = 1, per_page = 15, ...apiParams } = params ?? {};
+
+  if (!body) {
+    return fetchCarsFromApi({ ...apiParams, page, per_page });
+  }
+
+  const first = await fetchCarsFromApi({ ...apiParams, page: 1, per_page: 100 });
+  const pages =
+    first.lastPage <= 1
+      ? []
+      : await Promise.all(
+          Array.from({ length: first.lastPage - 1 }, (_, i) =>
+            fetchCarsFromApi({ ...apiParams, page: i + 2, per_page: 100 }),
+          ),
+        );
+
+  const allCars = [first.cars, ...pages.map((p) => p.cars)].flat();
+  const filtered = allCars.filter(
+    (car) => car.body?.trim().toLowerCase() === body.trim().toLowerCase(),
   );
+
+  return paginateCars(filtered, page, per_page);
 }
 
 async function fetchAllCarsForFilters(): Promise<Car[]> {
-  const first = await fetchCarsBrowser({ page: 1, per_page: 100 });
+  const first = await fetchCarsFromApi({ page: 1, per_page: 100 });
   if (first.lastPage <= 1) return first.cars;
 
   const pages = await Promise.all(
     Array.from({ length: first.lastPage - 1 }, (_, i) =>
-      fetchCarsBrowser({ page: i + 2, per_page: 100 }),
+      fetchCarsFromApi({ page: i + 2, per_page: 100 }),
     ),
   );
 
@@ -84,37 +125,8 @@ async function fetchAllCarsForFilters(): Promise<Car[]> {
 }
 
 export async function fetchFilterOptionsBrowser(): Promise<FilterOptions> {
-  const [response, cars] = await Promise.all([
-    fetchCarsApi<{
-      success: boolean;
-      data: Partial<FilterOptions>;
-    }>("/cars/filter/options"),
-    fetchAllCarsForFilters(),
-  ]);
-
-  const fromCars = makeModelOptionsFromCars(cars);
-  const makes = uniqueSorted([
-    ...(response?.data?.makes ?? []),
-    ...fromCars.makes,
-  ]);
-  const models = uniqueSorted([
-    ...(response?.data?.models ?? []),
-    ...fromCars.models,
-  ]);
-
-  return {
-    makes: makes.length > 0 ? makes : fromCars.makes,
-    models: models.length > 0 ? models : fromCars.models,
-    modelsByMake: fromCars.modelsByMake,
-    makeCounts: fromCars.makeCounts,
-    modelCounts: fromCars.modelCounts,
-    modelCountsByMake: fromCars.modelCountsByMake,
-    years: response?.data?.years ?? [],
-    transmissions: response?.data?.transmissions ?? [],
-    fuels: response?.data?.fuels ?? [],
-    colors: response?.data?.colors ?? [],
-    categories: response?.data?.categories ?? [],
-  };
+  const cars = await fetchAllCarsForFilters();
+  return filterOptionsFromCars(cars);
 }
 
 export async function fetchCarBrowser(id: string): Promise<Car | null> {

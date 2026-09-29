@@ -17,7 +17,7 @@ export type CarsSearchParams = {
   make?: string;
   model?: string;
   year?: string;
-  category_id?: string;
+  body?: string;
   fuel?: string;
   transmission?: string;
   price_from?: string;
@@ -62,7 +62,7 @@ export default function CarsPageClient({
             make: params.make,
             model: params.model,
             year: params.year,
-            category_id: params.category_id,
+            body: params.body,
             fuel: params.fuel,
             transmission: params.transmission,
             price_from: params.price_from,
@@ -93,7 +93,7 @@ export default function CarsPageClient({
     params.make,
     params.model,
     params.year,
-    params.category_id,
+    params.body,
     params.fuel,
     params.transmission,
     params.price_from,

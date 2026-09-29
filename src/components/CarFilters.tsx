@@ -92,17 +92,20 @@ export default function CarsFilterLayout({
     PRICE_RANGES.find((r) => r.from === priceFrom && r.to === priceTo) ??
     PRICE_RANGES[0];
 
-  const activeCategoryId = searchParams.get("category_id") ?? "";
-  const activeCategory =
-    options.categories.find((c) => String(c.id) === activeCategoryId)?.name ??
-    "";
+  const activeBody = searchParams.get("body") ?? "";
+  const activeMake = searchParams.get("make") ?? "";
+
+  const modelItems =
+    activeMake && options.modelsByMake?.[activeMake]?.length
+      ? options.modelsByMake[activeMake]
+      : options.models;
 
   const currentSort = `${searchParams.get("sort_by") ?? ""}:${searchParams.get("sort_direction") ?? ""}`;
   const activeSort =
     SORT_OPTIONS.find((s) => s.value === currentSort)?.value ?? "";
 
   const hasActiveFilters =
-    ["make", "model", "year", "category_id", "fuel", "transmission", "color", "price_from", "sort_by", "search"].some(
+    ["make", "model", "year", "body", "fuel", "transmission", "color", "price_from", "sort_by", "search"].some(
       (key) => searchParams.get(key),
     );
 
@@ -120,16 +123,15 @@ export default function CarsFilterLayout({
     items: { label: string; onSelect: () => void; selected: boolean }[];
   }[] = [
     {
-      key: "category_id",
+      key: "body",
       label: "Body Type",
-      active: activeCategory,
-      items: options.categories.map((c) => ({
-        label: c.name,
-        selected: String(c.id) === activeCategoryId,
+      active: activeBody,
+      items: options.bodies.map((body) => ({
+        label: body,
+        selected: activeBody === body,
         onSelect: () =>
           setParams({
-            category_id:
-              String(c.id) === activeCategoryId ? "" : String(c.id),
+            body: activeBody === body ? "" : body,
           }),
       })),
     },
@@ -149,19 +151,22 @@ export default function CarsFilterLayout({
     {
       key: "make",
       label: "Make",
-      active: searchParams.get("make") ?? "",
+      active: activeMake,
       items: options.makes.map((m) => ({
         label: m,
-        selected: searchParams.get("make") === m,
+        selected: activeMake === m,
         onSelect: () =>
-          setParams({ make: searchParams.get("make") === m ? "" : m }),
+          setParams({
+            make: activeMake === m ? "" : m,
+            model: "",
+          }),
       })),
     },
     {
       key: "model",
       label: "Model",
       active: searchParams.get("model") ?? "",
-      items: options.models.map((m) => ({
+      items: modelItems.map((m) => ({
         label: m,
         selected: searchParams.get("model") === m,
         onSelect: () =>
