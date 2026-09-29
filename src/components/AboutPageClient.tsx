@@ -1,7 +1,6 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
 import { useCmsPage } from "@/hooks/useCmsPage";
 import { aboutFromPage, type CmsPage } from "@/lib/cms";
 
@@ -65,7 +64,6 @@ export default function AboutPageClient({
   const whyBuy = content.whyBuy;
   const whyBuyItems = whyBuy?.items ?? [];
   const brands = content.brands;
-  const cta = content.cta;
 
   return (
     <>
@@ -165,31 +163,6 @@ export default function AboutPageClient({
             </div>
           ) : null}
         </SidebarSection>
-      ) : null}
-
-      {cta?.title || cta?.description ? (
-        <section className="bg-dark section-padding">
-          <div className="page-container text-center">
-            {cta.title ? (
-              <h2 className="text-2xl font-bold text-white sm:text-3xl lg:text-4xl">
-                {cta.title}
-              </h2>
-            ) : null}
-            {cta.description ? (
-              <p className="mx-auto mt-4 max-w-2xl text-sm text-white/70 sm:text-base">
-                {cta.description}
-              </p>
-            ) : null}
-            {cta.button_href && cta.button_label ? (
-              <Link
-                href={cta.button_href}
-                className="mt-6 inline-flex items-center gap-2 rounded-lg bg-primary px-8 py-3 font-semibold text-white transition-colors hover:bg-brand"
-              >
-                {cta.button_label}
-              </Link>
-            ) : null}
-          </div>
-        </section>
       ) : null}
     </>
   );

@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import ContactCTA from "@/components/ContactCTA";
 import ContactPageClient from "@/components/ContactPageClient";
 import PageLocationMap from "@/components/PageLocationMap";
 import { getCmsPage, getCmsSiteSettings } from "@/lib/cms";
@@ -23,7 +22,6 @@ export default async function ContactPage() {
   return (
     <>
       <ContactPageClient initialPage={page} settings={settings} />
-      <ContactCTA />
       <PageLocationMap page={page} />
     </>
   );

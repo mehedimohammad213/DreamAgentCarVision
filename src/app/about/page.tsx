@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import AboutPageClient from "@/components/AboutPageClient";
-import ContactCTA from "@/components/ContactCTA";
 import PageLocationMap from "@/components/PageLocationMap";
 import { getCmsPage } from "@/lib/cms";
 
@@ -20,7 +19,6 @@ export default async function AboutPage() {
   return (
     <>
       <AboutPageClient initialPage={page} />
-      <ContactCTA />
       <PageLocationMap page={page} />
     </>
   );
