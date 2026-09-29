@@ -5,7 +5,11 @@
 
 import { siteConfig } from "@/config/site";
 import type { Car, CarsApiResponse } from "@/lib/types";
-import type { CarQueryParams, FilterOptions } from "@/lib/api";
+import {
+  makeModelOptionsFromCars,
+  type CarQueryParams,
+  type FilterOptions,
+} from "@/lib/api";
 
 const API_BASE = siteConfig.apiUrl;
 
@@ -60,15 +64,51 @@ export async function fetchCarsBrowser(params?: CarQueryParams): Promise<{
   return normalizeCarsResponse(response);
 }
 
+function uniqueSorted(values: Iterable<string>): string[] {
+  return [...new Set([...values].filter(Boolean))].sort((a, b) =>
+    a.localeCompare(b),
+  );
+}
+
+async function fetchAllCarsForFilters(): Promise<Car[]> {
+  const first = await fetchCarsBrowser({ page: 1, per_page: 100 });
+  if (first.lastPage <= 1) return first.cars;
+
+  const pages = await Promise.all(
+    Array.from({ length: first.lastPage - 1 }, (_, i) =>
+      fetchCarsBrowser({ page: i + 2, per_page: 100 }),
+    ),
+  );
+
+  return [first.cars, ...pages.map((p) => p.cars)].flat();
+}
+
 export async function fetchFilterOptionsBrowser(): Promise<FilterOptions> {
-  const response = await fetchCarsApi<{
-    success: boolean;
-    data: Partial<FilterOptions>;
-  }>("/cars/filter/options");
+  const [response, cars] = await Promise.all([
+    fetchCarsApi<{
+      success: boolean;
+      data: Partial<FilterOptions>;
+    }>("/cars/filter/options"),
+    fetchAllCarsForFilters(),
+  ]);
+
+  const fromCars = makeModelOptionsFromCars(cars);
+  const makes = uniqueSorted([
+    ...(response?.data?.makes ?? []),
+    ...fromCars.makes,
+  ]);
+  const models = uniqueSorted([
+    ...(response?.data?.models ?? []),
+    ...fromCars.models,
+  ]);
 
   return {
-    makes: response?.data?.makes ?? [],
-    models: response?.data?.models ?? [],
+    makes: makes.length > 0 ? makes : fromCars.makes,
+    models: models.length > 0 ? models : fromCars.models,
+    modelsByMake: fromCars.modelsByMake,
+    makeCounts: fromCars.makeCounts,
+    modelCounts: fromCars.modelCounts,
+    modelCountsByMake: fromCars.modelCountsByMake,
     years: response?.data?.years ?? [],
     transmissions: response?.data?.transmissions ?? [],
     fuels: response?.data?.fuels ?? [],

@@ -1,9 +1,10 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
-import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import CarSearchFilter from "@/components/CarSearchFilter";
+import type { FilterOptions } from "@/lib/api";
 import { cn } from "@/lib/utils";
 
 export interface HeroSlide {
@@ -12,29 +13,16 @@ export interface HeroSlide {
   alt: string;
 }
 
-interface HeroCta {
-  label: string;
-  href: string;
-}
-
 interface HeroSliderProps {
   slides: HeroSlide[];
-  eyebrow?: string;
-  headline?: string;
-  subheadline?: string;
-  primaryCta?: HeroCta;
-  secondaryCta?: HeroCta;
+  filterOptions: FilterOptions;
 }
 
 const SLIDE_INTERVAL = 5000;
 
 export default function HeroSlider({
   slides,
-  eyebrow = "Dream Agent Car Vision",
-  headline = "Find Your Next Car,\nthe Smart Way",
-  subheadline = "Browse quality vehicles with transparent specs, photos, and pricing — all in one place.",
-  primaryCta = { label: "Browse Inventory", href: "/cars" },
-  secondaryCta = { label: "Contact Us", href: "/contact" },
+  filterOptions,
 }: HeroSliderProps) {
   const [active, setActive] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
@@ -64,9 +52,9 @@ export default function HeroSlider({
       className="relative w-full overflow-hidden bg-dark"
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
-      aria-label="Featured cars image slider"
+      aria-label="Find your car"
     >
-      <div className="relative h-[300px] w-full xs:h-[340px] sm:h-[440px] lg:h-[520px]">
+      <div className="relative min-h-[440px] w-full xs:min-h-[480px] sm:min-h-[540px] lg:min-h-[600px]">
         {slides.map((slide, index) => (
           <div
             key={slide.id}
@@ -88,36 +76,11 @@ export default function HeroSlider({
           </div>
         ))}
 
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/50 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/55 to-black/75" />
 
-        <div className="absolute inset-0 z-10 flex items-center">
-          <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div className="max-w-xl">
-              <p className="text-xs font-bold uppercase tracking-[0.25em] text-primary-light sm:text-sm">
-                {eyebrow}
-              </p>
-              <h1 className="mt-2 whitespace-pre-line text-2xl font-bold leading-tight text-white xs:mt-3 xs:text-3xl sm:text-4xl lg:text-5xl">
-                {headline}
-              </h1>
-              <p className="mt-4 hidden max-w-md text-sm leading-relaxed text-slate-200 sm:block sm:text-base">
-                {subheadline}
-              </p>
-              <div className="mt-4 flex flex-col gap-2.5 xs:mt-6 xs:flex-row xs:flex-wrap xs:items-center xs:gap-3">
-                <Link
-                  href={primaryCta.href}
-                  className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-primary/30 transition-all hover:-translate-y-0.5 hover:bg-primary-dark xs:px-6 xs:py-3"
-                >
-                  {primaryCta.label}
-                  <ArrowRight className="h-4 w-4" />
-                </Link>
-                <Link
-                  href={secondaryCta.href}
-                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/40 px-5 py-2.5 text-sm font-semibold text-white backdrop-blur-sm transition-colors hover:bg-white/15 xs:px-6 xs:py-3"
-                >
-                  {secondaryCta.label}
-                </Link>
-              </div>
-            </div>
+        <div className="relative z-10 flex min-h-[440px] items-center py-12 xs:min-h-[480px] sm:min-h-[540px] sm:py-14 lg:min-h-[600px]">
+          <div className="mx-auto w-full max-w-7xl px-4 pb-16 sm:px-6 sm:pb-14 lg:px-8 lg:pb-12">
+            <CarSearchFilter options={filterOptions} />
           </div>
         </div>
 

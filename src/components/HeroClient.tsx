@@ -3,11 +3,13 @@
 import { useEffect, useState } from "react";
 import HeroSlider, { type HeroSlide } from "@/components/HeroSlider";
 import { fetchCmsPageBrowser } from "@/lib/cms-browser";
+import { fetchFilterOptionsBrowser } from "@/lib/cars-browser";
 import {
   heroFromPage,
   slidesFromSlider,
   type CmsPage,
 } from "@/lib/cms";
+import type { FilterOptions } from "@/lib/api";
 
 const fallbackSlides: HeroSlide[] = [
   {
@@ -27,28 +29,30 @@ const fallbackSlides: HeroSlide[] = [
   },
 ];
 
-const fallbackCopy = {
-  eyebrow: "Dream Agent Car Vision",
-  headline: "Find Your Next Car,\nthe Smart Way",
-  subheadline:
-    "Browse quality vehicles with transparent specs, photos, and pricing — all in one place.",
-  primaryCta: { label: "Browse Inventory", href: "/cars" },
-  secondaryCta: { label: "Contact Us", href: "/contact" },
-};
-
 type HeroClientProps = {
   initialPage: CmsPage | null;
+  initialFilterOptions: FilterOptions;
 };
 
-export default function HeroClient({ initialPage }: HeroClientProps) {
+export default function HeroClient({
+  initialPage,
+  initialFilterOptions,
+}: HeroClientProps) {
   const [homePage, setHomePage] = useState<CmsPage | null>(initialPage);
+  const [filterOptions, setFilterOptions] =
+    useState<FilterOptions>(initialFilterOptions);
 
   useEffect(() => {
     let cancelled = false;
 
     async function load() {
-      const page = await fetchCmsPageBrowser<CmsPage>("home");
-      if (!cancelled && page) setHomePage(page);
+      const [page, options] = await Promise.all([
+        fetchCmsPageBrowser<CmsPage>("home"),
+        fetchFilterOptionsBrowser(),
+      ]);
+      if (cancelled) return;
+      if (page) setHomePage(page);
+      setFilterOptions(options);
     }
 
     void load();
@@ -63,7 +67,6 @@ export default function HeroClient({ initialPage }: HeroClientProps) {
     homePage?.sliders_headless?.find((s) => slidesFromSlider(s).length > 0) ??
     homePage?.sliders_headless?.[0];
 
-  const extra = heroSlider?.additional;
   const bodySlides = fromBody?.slides ?? [];
   const sliderSlides = slidesFromSlider(heroSlider);
   const slides: HeroSlide[] =
@@ -73,24 +76,5 @@ export default function HeroClient({ initialPage }: HeroClientProps) {
         ? sliderSlides
         : fallbackSlides;
 
-  return (
-    <HeroSlider
-      slides={slides}
-      eyebrow={fromBody?.eyebrow ?? extra?.eyebrow ?? fallbackCopy.eyebrow}
-      headline={fromBody?.headline ?? extra?.headline ?? fallbackCopy.headline}
-      subheadline={
-        fromBody?.subheadline ??
-        extra?.subheadline ??
-        fallbackCopy.subheadline
-      }
-      primaryCta={
-        fromBody?.primaryCta ?? extra?.primary_cta ?? fallbackCopy.primaryCta
-      }
-      secondaryCta={
-        fromBody?.secondaryCta ??
-        extra?.secondary_cta ??
-        fallbackCopy.secondaryCta
-      }
-    />
-  );
+  return <HeroSlider slides={slides} filterOptions={filterOptions} />;
 }
