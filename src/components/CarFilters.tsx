@@ -11,15 +11,6 @@ import {
 import type { FilterOptions } from "@/lib/api";
 import { cn } from "@/lib/utils";
 
-const PRICE_RANGES = [
-  { label: "Any", from: "", to: "" },
-  { label: "Under $10,000", from: "0", to: "10000" },
-  { label: "$10,000 – $20,000", from: "10000", to: "20000" },
-  { label: "$20,000 – $30,000", from: "20000", to: "30000" },
-  { label: "$30,000 – $50,000", from: "30000", to: "50000" },
-  { label: "$50,000+", from: "50000", to: "1000000000" },
-];
-
 const SORT_OPTIONS = [
   { label: "Default", value: "" },
   { label: "Price: Low to High", value: "price_amount:asc" },
@@ -86,11 +77,6 @@ export default function CarsFilterLayout({
   );
 
   const currentSearch = searchParams.get("search") ?? "";
-  const priceFrom = searchParams.get("price_from") ?? "";
-  const priceTo = searchParams.get("price_to") ?? "";
-  const activePrice =
-    PRICE_RANGES.find((r) => r.from === priceFrom && r.to === priceTo) ??
-    PRICE_RANGES[0];
 
   const activeBody = searchParams.get("body") ?? "";
   const activeMake = searchParams.get("make") ?? "";
@@ -105,7 +91,7 @@ export default function CarsFilterLayout({
     SORT_OPTIONS.find((s) => s.value === currentSort)?.value ?? "";
 
   const hasActiveFilters =
-    ["make", "model", "year", "body", "fuel", "transmission", "color", "price_from", "sort_by", "search"].some(
+    ["make", "model", "year", "body", "fuel", "transmission", "color", "sort_by", "search"].some(
       (key) => searchParams.get(key),
     );
 
@@ -195,16 +181,6 @@ export default function CarsFilterLayout({
           setParams({
             transmission: searchParams.get("transmission") === t ? "" : t,
           }),
-      })),
-    },
-    {
-      key: "price",
-      label: "Price Range",
-      active: activePrice.from ? activePrice.label : "",
-      items: PRICE_RANGES.map((r) => ({
-        label: r.label,
-        selected: r === activePrice,
-        onSelect: () => setParams({ price_from: r.from, price_to: r.to }),
       })),
     },
   ];
