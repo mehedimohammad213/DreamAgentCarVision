@@ -37,6 +37,7 @@ type CarsPageClientProps = {
   initialTotal: number;
   initialLastPage: number;
   initialFilterOptions: FilterOptions;
+  heroImage?: string;
 };
 
 export default function CarsPageClient({
@@ -45,6 +46,7 @@ export default function CarsPageClient({
   initialTotal,
   initialLastPage,
   initialFilterOptions,
+  heroImage,
 }: CarsPageClientProps) {
   const page = Number(params.page) || 1;
   const [cars, setCars] = useState(initialCars);
@@ -118,8 +120,9 @@ export default function CarsPageClient({
   ]);
 
   return (
-    <CarsFilterLayout
-      options={filterOptions}
+        <CarsFilterLayout
+          options={filterOptions}
+          backgroundImage={heroImage}
       heading={
         <div>
           <h1 className="text-3xl font-bold tracking-tight text-white sm:text-4xl lg:text-5xl">

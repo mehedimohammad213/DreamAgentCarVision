@@ -1,6 +1,7 @@
 "use client";
 
 import { ReactNode, useCallback, useEffect, useState } from "react";
+import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ChevronDown, Search } from "lucide-react";
 import type { FilterOptions } from "@/lib/api";
@@ -24,6 +25,7 @@ const MILEAGE_RANGES = [
 interface CarsFilterLayoutProps {
   options: FilterOptions;
   heading?: ReactNode;
+  backgroundImage?: string;
   children: ReactNode;
 }
 
@@ -71,6 +73,7 @@ function FilterSelect({
 export default function CarsFilterLayout({
   options,
   heading,
+  backgroundImage,
   children,
 }: CarsFilterLayoutProps) {
   const router = useRouter();
@@ -156,8 +159,23 @@ export default function CarsFilterLayout({
 
   return (
     <div>
-      <section className="bg-dark">
-        <div className="page-container py-8 sm:py-10">
+      <section className="relative overflow-hidden">
+        {backgroundImage ? (
+          <Image
+            src={backgroundImage}
+            alt=""
+            fill
+            priority
+            className="object-cover object-[72%_center] blur-sm scale-105"
+            sizes="100vw"
+            aria-hidden
+            unoptimized={backgroundImage.startsWith("http")}
+          />
+        ) : (
+          <div className="absolute inset-0 bg-dark" />
+        )}
+        <div className="absolute inset-0 bg-gradient-to-r from-dark from-[18%] via-dark/55 to-transparent" />
+        <div className="page-container relative py-8 sm:py-10">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           {heading ? <div className="min-w-0">{heading}</div> : <div />}
           {hasActiveFilters ? (
@@ -303,7 +321,7 @@ export default function CarsFilterLayout({
           />
         </div>
 
-        <div className="mt-4 flex flex-wrap items-center gap-3 border-t border-white/15 pt-4">
+        <div className="mt-4 flex flex-wrap items-center gap-3">
           <label htmlFor="car-sort" className="text-sm font-medium text-white">
             Sort by:
           </label>

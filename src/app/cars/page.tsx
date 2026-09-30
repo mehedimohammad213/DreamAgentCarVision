@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import CarsPageClient from "@/components/CarsPageClient";
 import { getCars, getFilterOptions } from "@/lib/api";
+import { aboutFromPage, getCmsPage } from "@/lib/cms";
 
 export const metadata: Metadata = {
   title: "Car Inventory",
@@ -31,7 +32,7 @@ interface CarsPageProps {
 
 export default async function CarsPage({ searchParams: params }: CarsPageProps) {
   const page = Number(params.page) || 1;
-  const [{ cars, total, lastPage }, filterOptions] = await Promise.all([
+  const [{ cars, total, lastPage }, filterOptions, aboutPage] = await Promise.all([
     getCars({
       page,
       per_page: 15,
@@ -53,7 +54,9 @@ export default async function CarsPage({ searchParams: params }: CarsPageProps) 
       sort_direction: params.sort_direction,
     }),
     getFilterOptions(),
+    getCmsPage("about"),
   ]);
+  const heroImage = aboutFromPage(aboutPage).hero?.image;
 
   return (
     <CarsPageClient
@@ -62,6 +65,7 @@ export default async function CarsPage({ searchParams: params }: CarsPageProps) 
       initialTotal={total}
       initialLastPage={lastPage}
       initialFilterOptions={filterOptions}
+      heroImage={heroImage}
     />
   );
 }
