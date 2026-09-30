@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Award, Calendar, Fuel, Gauge } from "lucide-react";
 import type { Car } from "@/lib/types";
-import { formatMileage, formatPrice, getCarImage } from "@/lib/utils";
+import { cn, formatMileage, formatPrice, getCarImage } from "@/lib/utils";
 
 interface CarCardProps {
   car: Car;
@@ -27,7 +27,12 @@ export default function CarCard({ car, href }: CarCardProps) {
           unoptimized={image.startsWith("http")}
         />
         {car.status && (
-          <span className="absolute left-3 top-3 rounded-full bg-brand px-2.5 py-1 text-xs font-semibold capitalize text-white">
+          <span
+            className={cn(
+              "absolute left-3 top-3 rounded-full px-2.5 py-1 text-xs font-semibold capitalize text-white",
+              car.status.toLowerCase() === "sold" ? "bg-primary" : "bg-brand",
+            )}
+          >
             {car.status}
           </span>
         )}

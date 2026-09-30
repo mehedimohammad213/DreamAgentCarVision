@@ -13,7 +13,7 @@ import {
 import CarImageGallery from "@/components/CarImageGallery";
 import InquireContactButton from "@/components/InquireContactButton";
 import { getCar } from "@/lib/api";
-import { formatMileage, formatPrice, getCarImage } from "@/lib/utils";
+import { cn, formatMileage, formatPrice, getCarImage } from "@/lib/utils";
 interface CarDetailPageProps {
   params: { id: string };
 }
@@ -90,7 +90,12 @@ export default async function CarDetailPage({
                   )}
                 </div>
                 {car.status && (
-                  <span className="shrink-0 rounded-full bg-brand px-3 py-1 text-xs font-semibold capitalize text-white">
+                  <span
+                    className={cn(
+                      "shrink-0 rounded-full px-3 py-1 text-xs font-semibold capitalize text-white",
+                      car.status.toLowerCase() === "sold" ? "bg-primary" : "bg-brand",
+                    )}
+                  >
                     {car.status}
                   </span>
                 )}

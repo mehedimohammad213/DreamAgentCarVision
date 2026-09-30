@@ -189,13 +189,13 @@ export default function CarsFilterLayout({
           ) : null}
         </div>
 
-        <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center">
+        <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-[minmax(0,1fr)_220px] lg:grid-cols-5">
           <form
             onSubmit={(event) => {
               event.preventDefault();
               commitKeyword();
             }}
-            className="relative min-w-0 flex-1"
+            className="relative min-w-0 lg:col-span-4"
           >
             <input
               aria-label="Keyword"
@@ -213,7 +213,7 @@ export default function CarsFilterLayout({
             </button>
           </form>
 
-          <div className="relative min-w-[220px] shrink-0">
+          <div className="relative min-w-0">
               <select
                 id="car-sort"
                 aria-label="Sort by"
