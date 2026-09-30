@@ -122,6 +122,9 @@ export default async function CarDetailPage({
                   car.transmission
                     ? { label: "Transmission", value: car.transmission }
                     : null,
+                  car.grade_overall != null && String(car.grade_overall).trim() !== ""
+                    ? { label: "Grade", value: String(car.grade_overall) }
+                    : null,
                   car.grade_exterior
                     ? { label: "Exterior grade", value: car.grade_exterior }
                     : null,
