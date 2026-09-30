@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Calendar, Fuel, Gauge, Settings2 } from "lucide-react";
+import { Award, Calendar, Fuel, Gauge } from "lucide-react";
 import type { Car } from "@/lib/types";
 import { formatMileage, formatPrice, getCarImage } from "@/lib/utils";
 
@@ -64,10 +64,10 @@ export default function CarCard({ car, href }: CarCardProps) {
               {car.fuel}
             </span>
           )}
-          {car.transmission && (
+          {car.grade_overall != null && String(car.grade_overall).trim() !== "" && (
             <span className="flex items-center gap-1.5">
-              <Settings2 className="h-3.5 w-3.5 text-brand" />
-              {car.transmission}
+              <Award className="h-3.5 w-3.5 text-brand" />
+              {car.grade_overall}
             </span>
           )}
         </div>
