@@ -48,7 +48,7 @@ function FilterSelect({
         disabled={disabled}
         onChange={(event) => onChange(event.target.value)}
         className={cn(
-          "h-11 w-full min-w-0 max-w-full appearance-none truncate rounded-lg border bg-white px-3 pr-9 text-sm outline-none transition-colors focus:border-brand focus:ring-2 focus:ring-brand/20 disabled:cursor-not-allowed disabled:opacity-50",
+          "h-11 w-full min-w-0 max-w-full appearance-none truncate rounded-lg border bg-white px-3 pr-9 text-sm outline-none transition-colors focus:border-brand focus:ring-2 focus:ring-brand/20 disabled:cursor-not-allowed disabled:bg-white disabled:text-dark disabled:opacity-100",
           value
             ? "border-brand font-semibold text-brand"
             : "border-border text-dark",
