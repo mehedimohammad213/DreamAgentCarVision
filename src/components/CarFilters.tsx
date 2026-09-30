@@ -203,7 +203,8 @@ export default function CarsFilterLayout({
           <FilterSelect
             label="Model"
             value={model}
-            options={models}
+            options={make ? models : []}
+            disabled={!make}
             onChange={(value) => setParams({ model: value })}
           />
           <FilterSelect
