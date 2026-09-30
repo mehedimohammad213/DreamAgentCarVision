@@ -1,28 +1,71 @@
 "use client";
 
+import { ReactNode, useCallback, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { FormEvent, ReactNode, useCallback, useEffect, useState } from "react";
-import {
-  ChevronDown,
-  ChevronRight,
-  Search,
-  SlidersHorizontal,
-} from "lucide-react";
+import { ChevronDown, Search } from "lucide-react";
 import type { FilterOptions } from "@/lib/api";
 import { cn } from "@/lib/utils";
 
 const SORT_OPTIONS = [
-  { label: "Default", value: "" },
-  { label: "Price: Low to High", value: "price_amount:asc" },
-  { label: "Price: High to Low", value: "price_amount:desc" },
-  { label: "Year: Newest First", value: "year:desc" },
-  { label: "Mileage: Low to High", value: "mileage_km:asc" },
+  { label: "Date Listed: Newest", sortBy: "created_at", sortDirection: "desc" },
+  { label: "Price: Lowest", sortBy: "price_amount", sortDirection: "asc" },
+  { label: "Price: Highest", sortBy: "price_amount", sortDirection: "desc" },
+  { label: "Mileage: Lowest", sortBy: "mileage_km", sortDirection: "asc" },
+  { label: "Mileage: Highest", sortBy: "mileage_km", sortDirection: "desc" },
+];
+
+const MILEAGE_RANGES = [
+  { label: "Under 10,000 km", from: "0", to: "10000" },
+  { label: "10,000 – 30,000 km", from: "10000", to: "30000" },
+  { label: "30,000 – 50,000 km", from: "30000", to: "50000" },
+  { label: "50,000+ km", from: "50000", to: "9999999" },
 ];
 
 interface CarsFilterLayoutProps {
   options: FilterOptions;
   heading?: ReactNode;
   children: ReactNode;
+}
+
+function FilterSelect({
+  label,
+  value,
+  options,
+  onChange,
+  disabled = false,
+}: {
+  label: string;
+  value: string;
+  options: string[];
+  onChange: (value: string) => void;
+  disabled?: boolean;
+}) {
+  return (
+    <div className="relative min-w-0">
+      <select
+        aria-label={label}
+        value={value}
+        disabled={disabled}
+        onChange={(event) => onChange(event.target.value)}
+        className={cn(
+          "h-11 w-full min-w-0 max-w-full appearance-none truncate rounded-lg border bg-white px-3 pr-9 text-sm outline-none transition-colors focus:border-brand focus:ring-2 focus:ring-brand/20 disabled:cursor-not-allowed disabled:opacity-50",
+          value
+            ? "border-brand font-semibold text-brand"
+            : "border-border text-dark",
+        )}
+      >
+        <option value="" className="bg-white font-normal text-dark">
+          {label}
+        </option>
+        {options.map((option) => (
+          <option key={option} value={option} className="bg-white font-normal text-dark">
+            {option}
+          </option>
+        ))}
+      </select>
+      <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-brand" />
+    </div>
+  );
 }
 
 export default function CarsFilterLayout({
@@ -32,341 +75,272 @@ export default function CarsFilterLayout({
 }: CarsFilterLayoutProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [open, setOpen] = useState(false);
-  const [expanded, setExpanded] = useState<string | null>(null);
-  const [groupQueries, setGroupQueries] = useState<Record<string, string>>({});
+  const [minPrice, setMinPrice] = useState(searchParams.get("price_from") ?? "");
+  const [maxPrice, setMaxPrice] = useState(searchParams.get("price_to") ?? "");
+  const [keyword, setKeyword] = useState(searchParams.get("search") ?? "");
 
   useEffect(() => {
-    const mediaQuery = window.matchMedia("(min-width: 1024px)");
-    const syncOpen = (matches: boolean) => setOpen(matches);
-
-    syncOpen(mediaQuery.matches);
-    const handleChange = (event: MediaQueryListEvent) => syncOpen(event.matches);
-
-    mediaQuery.addEventListener("change", handleChange);
-    return () => mediaQuery.removeEventListener("change", handleChange);
-  }, []);
-
-  function toggleGroup(key: string) {
-    setExpanded((current) => {
-      const next = current === key ? null : key;
-      if (current && current !== next) {
-        setGroupQueries((queries) => {
-          const { [current]: _, ...rest } = queries;
-          return rest;
-        });
-      }
-      return next;
-    });
-  }
+    setMinPrice(searchParams.get("price_from") ?? "");
+    setMaxPrice(searchParams.get("price_to") ?? "");
+    setKeyword(searchParams.get("search") ?? "");
+  }, [searchParams]);
 
   const setParams = useCallback(
     (updates: Record<string, string>) => {
       const params = new URLSearchParams(searchParams.toString());
       Object.entries(updates).forEach(([key, value]) => {
-        if (value) {
-          params.set(key, value);
-        } else {
-          params.delete(key);
-        }
+        if (value) params.set(key, value);
+        else params.delete(key);
       });
       params.delete("page");
-      router.push(`/cars?${params.toString()}`);
+      const qs = params.toString();
+      router.push(qs ? `/cars?${qs}` : "/cars");
     },
     [router, searchParams],
   );
 
-  const currentSearch = searchParams.get("search") ?? "";
-
-  const activeBody = searchParams.get("body") ?? "";
-  const activeMake = searchParams.get("make") ?? "";
-
-  const modelItems =
-    activeMake && options.modelsByMake?.[activeMake]?.length
-      ? options.modelsByMake[activeMake]
+  const make = searchParams.get("make") ?? "";
+  const model = searchParams.get("model") ?? "";
+  const models =
+    make && options.modelsByMake?.[make]?.length
+      ? options.modelsByMake[make]
       : options.models;
 
-  const currentSort = `${searchParams.get("sort_by") ?? ""}:${searchParams.get("sort_direction") ?? ""}`;
-  const activeSort =
-    SORT_OPTIONS.find((s) => s.value === currentSort)?.value ?? "";
+  const mileageFrom = searchParams.get("mileage_from") ?? "";
+  const mileageTo = searchParams.get("mileage_to") ?? "";
+  const mileageLabel =
+    MILEAGE_RANGES.find(
+      (range) => range.from === mileageFrom && range.to === mileageTo,
+    )?.label ?? "";
 
-  const hasActiveFilters =
-    ["make", "model", "year", "body", "fuel", "transmission", "color", "sort_by", "search"].some(
-      (key) => searchParams.get(key),
-    );
+  const hasActiveFilters = [
+    "search",
+    "make",
+    "model",
+    "body",
+    "price_from",
+    "price_to",
+    "mileage_from",
+    "drive",
+    "fuel",
+    "feature",
+    "transmission",
+    "color",
+    "sort_by",
+  ].some((key) => searchParams.get(key));
 
-  function handleSearch(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    const form = e.currentTarget;
-    const search = (form.elements.namedItem("search") as HTMLInputElement).value;
-    setParams({ search: search.trim() });
+  const sortLabel =
+    SORT_OPTIONS.find(
+      (option) =>
+        option.sortBy === (searchParams.get("sort_by") ?? "") &&
+        option.sortDirection === (searchParams.get("sort_direction") ?? ""),
+    )?.label ?? SORT_OPTIONS[0].label;
+
+  function commitKeyword(nextKeyword = keyword) {
+    const next = nextKeyword.trim();
+    if (next === (searchParams.get("search") ?? "")) return;
+    setParams({ search: next });
   }
 
-  const groups: {
-    key: string;
-    label: string;
-    active: string;
-    items: { label: string; onSelect: () => void; selected: boolean }[];
-  }[] = [
-    {
-      key: "body",
-      label: "Body Type",
-      active: activeBody,
-      items: options.bodies.map((body) => ({
-        label: body,
-        selected: activeBody === body,
-        onSelect: () =>
-          setParams({
-            body: activeBody === body ? "" : body,
-          }),
-      })),
-    },
-    {
-      key: "year",
-      label: "Year",
-      active: searchParams.get("year") ?? "",
-      items: options.years.map((y) => ({
-        label: String(y),
-        selected: searchParams.get("year") === String(y),
-        onSelect: () =>
-          setParams({
-            year: searchParams.get("year") === String(y) ? "" : String(y),
-          }),
-      })),
-    },
-    {
-      key: "make",
-      label: "Make",
-      active: activeMake,
-      items: options.makes.map((m) => ({
-        label: m,
-        selected: activeMake === m,
-        onSelect: () =>
-          setParams({
-            make: activeMake === m ? "" : m,
-            model: "",
-          }),
-      })),
-    },
-    {
-      key: "model",
-      label: "Model",
-      active: searchParams.get("model") ?? "",
-      items: modelItems.map((m) => ({
-        label: m,
-        selected: searchParams.get("model") === m,
-        onSelect: () =>
-          setParams({ model: searchParams.get("model") === m ? "" : m }),
-      })),
-    },
-    {
-      key: "fuel",
-      label: "Fuel Type",
-      active: searchParams.get("fuel") ?? "",
-      items: options.fuels.map((f) => ({
-        label: f,
-        selected: searchParams.get("fuel") === f,
-        onSelect: () =>
-          setParams({ fuel: searchParams.get("fuel") === f ? "" : f }),
-      })),
-    },
-    {
-      key: "transmission",
-      label: "Transmission",
-      active: searchParams.get("transmission") ?? "",
-      items: options.transmissions.map((t) => ({
-        label: t,
-        selected: searchParams.get("transmission") === t,
-        onSelect: () =>
-          setParams({
-            transmission: searchParams.get("transmission") === t ? "" : t,
-          }),
-      })),
-    },
-  ];
+  function commitPrices(nextFrom = minPrice, nextTo = maxPrice) {
+    const from = nextFrom.trim();
+    const to = nextTo.trim();
+    if (
+      from === (searchParams.get("price_from") ?? "") &&
+      to === (searchParams.get("price_to") ?? "")
+    ) {
+      return;
+    }
+    setParams({ price_from: from, price_to: to });
+  }
 
   return (
     <div>
-      <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
-        {heading && <div className="min-w-0 flex-1">{heading}</div>}
-        <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+        {heading ? <div className="min-w-0">{heading}</div> : <div />}
+        {hasActiveFilters ? (
           <button
             type="button"
-            onClick={() => setOpen((v) => !v)}
-            aria-expanded={open}
+            onClick={() => router.push("/cars")}
+            className="self-start rounded-lg border border-border px-4 py-2 text-sm font-semibold text-dark transition-colors hover:border-primary hover:text-primary sm:self-auto"
+          >
+            Reset
+          </button>
+        ) : null}
+      </div>
+
+      <div className="mt-5 rounded-2xl border border-border bg-white p-3 shadow-sm sm:p-4">
+        <form
+          onSubmit={(event) => {
+            event.preventDefault();
+            commitKeyword();
+          }}
+          className="relative"
+        >
+          <input
+            aria-label="Keyword"
+            placeholder="Enter keyword"
+            value={keyword}
+            onChange={(event) => setKeyword(event.target.value)}
+            className="h-11 w-full rounded-lg border border-border bg-white px-4 pr-12 text-sm text-dark outline-none placeholder:text-dark/50 focus:border-brand focus:ring-2 focus:ring-brand/20"
+          />
+          <button
+            type="submit"
+            aria-label="Search"
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-brand"
+          >
+            <Search className="h-4 w-4" />
+          </button>
+        </form>
+
+        <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">
+          <FilterSelect
+            label="Brand"
+            value={make}
+            options={options.makes}
+            onChange={(value) => setParams({ make: value, model: "" })}
+          />
+          <FilterSelect
+            label="Model"
+            value={model}
+            options={models}
+            onChange={(value) => setParams({ model: value })}
+          />
+          <FilterSelect
+            label="Type"
+            value={searchParams.get("body") ?? ""}
+            options={options.bodies}
+            onChange={(value) => setParams({ body: value })}
+          />
+
+          <div
             className={cn(
-              "inline-flex items-center gap-2 rounded-lg border px-4 py-2.5 text-sm font-bold uppercase tracking-wide transition-colors",
-              open
-                ? "border-primary bg-primary text-white"
-                : "border-border bg-white text-dark hover:border-primary hover:text-primary",
+              "flex h-11 min-w-0 overflow-hidden rounded-lg border bg-white focus-within:border-brand focus-within:ring-2 focus-within:ring-brand/20",
+              minPrice || maxPrice ? "border-brand" : "border-border",
             )}
           >
-            <SlidersHorizontal className="h-4 w-4" />
-            Filters
-          </button>
-          {hasActiveFilters && (
-            <button
-              type="button"
-              onClick={() => router.push("/cars")}
-              className="rounded-lg bg-dark px-4 py-2.5 text-sm font-bold uppercase tracking-wide text-white transition-colors hover:bg-brand"
-            >
-              Reset
-            </button>
-          )}
+            <input
+              aria-label="Min Price"
+              inputMode="numeric"
+              placeholder="Min Price"
+              value={minPrice}
+              onChange={(event) =>
+                setMinPrice(event.target.value.replace(/[^\d]/g, ""))
+              }
+              onBlur={() => commitPrices()}
+              onKeyDown={(event) => {
+                if (event.key === "Enter") {
+                  event.preventDefault();
+                  commitPrices();
+                }
+              }}
+              className="min-w-0 w-1/2 bg-transparent px-3 text-sm text-dark outline-none placeholder:text-dark/50"
+            />
+            <span className="w-px shrink-0 self-stretch bg-border" />
+            <input
+              aria-label="Max Price"
+              inputMode="numeric"
+              placeholder="Max Price"
+              value={maxPrice}
+              onChange={(event) =>
+                setMaxPrice(event.target.value.replace(/[^\d]/g, ""))
+              }
+              onBlur={() => commitPrices()}
+              onKeyDown={(event) => {
+                if (event.key === "Enter") {
+                  event.preventDefault();
+                  commitPrices();
+                }
+              }}
+              className="min-w-0 w-1/2 bg-transparent px-3 text-sm text-dark outline-none placeholder:text-dark/50"
+            />
+          </div>
+
+          <FilterSelect
+            label="Mileage"
+            value={mileageLabel}
+            options={MILEAGE_RANGES.map((range) => range.label)}
+            onChange={(label) => {
+              const range = MILEAGE_RANGES.find((item) => item.label === label);
+              setParams({
+                mileage_from: range?.from ?? "",
+                mileage_to: range?.to ?? "",
+              });
+            }}
+          />
+
+          <FilterSelect
+            label="Drive Type"
+            value={searchParams.get("drive") ?? ""}
+            options={options.drives}
+            onChange={(value) => setParams({ drive: value })}
+          />
+          <FilterSelect
+            label="Fuel Type"
+            value={searchParams.get("fuel") ?? ""}
+            options={options.fuels}
+            onChange={(value) => setParams({ fuel: value })}
+          />
+          <FilterSelect
+            label="Features"
+            value={searchParams.get("feature") ?? ""}
+            options={options.features}
+            onChange={(value) => setParams({ feature: value })}
+          />
+          <FilterSelect
+            label="Transmission"
+            value={searchParams.get("transmission") ?? ""}
+            options={options.transmissions}
+            onChange={(value) => setParams({ transmission: value })}
+          />
+          <FilterSelect
+            label="Color"
+            value={searchParams.get("color") ?? ""}
+            options={options.colors}
+            onChange={(value) => setParams({ color: value })}
+          />
         </div>
       </div>
 
-      <div className="mt-6 flex flex-col gap-8 lg:flex-row lg:items-start">
-        {open && (
-          <aside className="w-full shrink-0 rounded-xl border border-border bg-white max-lg:max-h-[70vh] max-lg:overflow-y-auto lg:sticky lg:top-20 lg:max-h-[calc(100vh-6rem)] lg:w-72 lg:overflow-y-auto">
-            <div className="border-b border-border p-4">
-              <label
-                htmlFor="car-search"
-                className="text-xs font-semibold uppercase tracking-wide text-muted"
+      <div className="mt-5 flex flex-wrap items-center gap-3">
+        <label htmlFor="car-sort" className="text-sm font-medium text-dark">
+          Sort by:
+        </label>
+        <div className="relative min-w-[220px]">
+          <select
+            id="car-sort"
+            aria-label="Sort by"
+            value={sortLabel}
+            onChange={(event) => {
+              const option = SORT_OPTIONS.find(
+                (item) => item.label === event.target.value,
+              );
+              if (!option || option.sortBy === "created_at") {
+                setParams({ sort_by: "", sort_direction: "" });
+                return;
+              }
+              setParams({
+                sort_by: option.sortBy,
+                sort_direction: option.sortDirection,
+              });
+            }}
+            className="h-11 w-full appearance-none rounded-lg border border-border bg-white px-3 pr-9 text-sm font-medium text-brand outline-none focus:border-brand focus:ring-2 focus:ring-brand/20"
+          >
+            {SORT_OPTIONS.map((option) => (
+              <option
+                key={option.label}
+                value={option.label}
+                className="bg-white font-normal text-dark"
               >
-                Search
-              </label>
-              <form onSubmit={handleSearch} className="relative mt-2">
-                <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" />
-                <input
-                  id="car-search"
-                  name="search"
-                  defaultValue={currentSearch}
-                  placeholder="Make, model, ref no..."
-                  className="w-full rounded-lg border border-border bg-white py-2.5 pl-9 pr-3 text-sm outline-none transition-colors placeholder:text-muted focus:border-primary focus:ring-2 focus:ring-primary/20"
-                />
-              </form>
-            </div>
-
-            <div className="border-b border-border p-4">
-              <label
-                htmlFor="car-sort"
-                className="text-xs font-semibold uppercase tracking-wide text-muted"
-              >
-                Sort By
-              </label>
-              <select
-                id="car-sort"
-                value={activeSort}
-                onChange={(e) => {
-                  const [sortBy, sortDirection] = e.target.value.split(":");
-                  setParams({
-                    sort_by: sortBy ?? "",
-                    sort_direction: sortDirection ?? "",
-                  });
-                }}
-                className="mt-2 w-full rounded-lg border border-border bg-white px-3 py-2.5 text-sm outline-none transition-colors focus:border-primary"
-              >
-                {SORT_OPTIONS.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <p className="px-4 pt-4 text-sm font-bold text-foreground">
-              Filters
-            </p>
-
-            <div className="p-2">
-              {groups.map((group) => {
-                const isExpanded = expanded === group.key;
-                const query = groupQueries[group.key] ?? "";
-                const filteredItems = group.items.filter((item) =>
-                  item.label.toLowerCase().includes(query.trim().toLowerCase()),
-                );
-
-                return (
-                  <div
-                    key={group.key}
-                    className="border-b border-border/70 last:border-b-0"
-                  >
-                    <button
-                      type="button"
-                      onClick={() => toggleGroup(group.key)}
-                      aria-expanded={isExpanded}
-                      className="flex w-full items-center justify-between gap-2 px-2 py-3.5 text-left"
-                    >
-                      <span className="text-xs font-semibold uppercase tracking-wide text-muted">
-                        {group.label}
-                      </span>
-                      <span className="flex items-center gap-1.5">
-                        <span
-                          className={cn(
-                            "text-sm",
-                            group.active
-                              ? "font-semibold text-primary"
-                              : "text-foreground",
-                          )}
-                        >
-                          {group.active || "All"}
-                        </span>
-                        {isExpanded ? (
-                          <ChevronDown className="h-4 w-4 text-primary" />
-                        ) : (
-                          <ChevronRight className="h-4 w-4 text-primary" />
-                        )}
-                      </span>
-                    </button>
-
-                    {isExpanded && (
-                      <div className="pb-3">
-                        <div className="relative px-2 pb-2">
-                          <Search className="pointer-events-none absolute left-4 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted" />
-                          <input
-                            type="search"
-                            value={query}
-                            onChange={(e) =>
-                              setGroupQueries((queries) => ({
-                                ...queries,
-                                [group.key]: e.target.value,
-                              }))
-                            }
-                            placeholder={`Search ${group.label.toLowerCase()}...`}
-                            aria-label={`Search ${group.label}`}
-                            className="w-full rounded-lg border border-border bg-surface py-2 pl-8 pr-3 text-sm outline-none transition-colors placeholder:text-muted focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary/20"
-                          />
-                        </div>
-
-                        <div className="max-h-48 overflow-y-auto">
-                          {group.items.length === 0 ? (
-                            <p className="px-3 py-1.5 text-sm text-muted">
-                              No options available
-                            </p>
-                          ) : filteredItems.length === 0 ? (
-                            <p className="px-3 py-1.5 text-sm text-muted">
-                              No matches for &ldquo;{query.trim()}&rdquo;
-                            </p>
-                          ) : (
-                            filteredItems.map((item) => (
-                              <button
-                                key={item.label}
-                                type="button"
-                                onClick={item.onSelect}
-                                className={cn(
-                                  "block w-full rounded-lg px-3 py-2 text-left text-sm transition-colors",
-                                  item.selected
-                                    ? "bg-brand font-semibold text-white"
-                                    : "text-dark hover:bg-brand hover:text-white",
-                                )}
-                              >
-                                {item.label}
-                              </button>
-                            ))
-                          )}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          </aside>
-        )}
-
-        <div className="min-w-0 flex-1">{children}</div>
+                {option.label}
+              </option>
+            ))}
+          </select>
+          <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-brand" />
+        </div>
       </div>
+
+      <div className="mt-6">{children}</div>
     </div>
   );
 }

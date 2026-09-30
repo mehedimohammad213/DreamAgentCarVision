@@ -47,8 +47,12 @@ export interface CarQueryParams {
   transmission?: string;
   fuel?: string;
   color?: string;
+  drive?: string;
+  feature?: string;
   price_from?: string;
   price_to?: string;
+  mileage_from?: string;
+  mileage_to?: string;
   sort_by?: string;
   sort_direction?: string;
 }
@@ -82,13 +86,38 @@ async function fetchCarsFromApi(
   return normalizeCarsResponse(response);
 }
 
-/** Inventory API ignores `body`; filter client-side when needed. */
+/** Model, body, and feature are not applied by the inventory API. */
+export function carMatchesLocalFilters(
+  car: Car,
+  filters: Pick<CarQueryParams, "model" | "body" | "feature">,
+): boolean {
+  const model = filters.model?.trim().toLowerCase();
+  if (model && car.model?.trim().toLowerCase() !== model) return false;
+
+  const body = filters.body?.trim().toLowerCase();
+  if (body && car.body?.trim().toLowerCase() !== body) return false;
+
+  const feature = filters.feature?.trim().toLowerCase();
+  if (feature) {
+    const tokens = (car.keys_feature ?? "")
+      .split(",")
+      .map((part) => part.trim().toLowerCase())
+      .filter(Boolean);
+    if (!tokens.includes(feature)) return false;
+  }
+
+  return true;
+}
+
 export async function getCars(
   params?: CarQueryParams,
 ): Promise<{ cars: Car[]; total: number; lastPage: number }> {
-  const { body, page = 1, per_page = 15, ...apiParams } = params ?? {};
+  const { body, model, feature, page = 1, per_page = 15, ...apiParams } =
+    params ?? {};
+  const localFilters = { body, model, feature };
+  const needsLocal = Boolean(body || model || feature);
 
-  if (!body) {
+  if (!needsLocal) {
     return fetchCarsFromApi({ ...apiParams, page, per_page });
   }
 
@@ -103,8 +132,8 @@ export async function getCars(
         );
 
   const allCars = [first.cars, ...pages.map((p) => p.cars)].flat();
-  const filtered = allCars.filter(
-    (car) => car.body?.trim().toLowerCase() === body.trim().toLowerCase(),
+  const filtered = allCars.filter((car) =>
+    carMatchesLocalFilters(car, localFilters),
   );
 
   return paginateCars(filtered, page, per_page);
@@ -122,6 +151,8 @@ export interface FilterOptions {
   fuels: string[];
   colors: string[];
   bodies: string[];
+  drives: string[];
+  features: string[];
   categories: { id: number; name: string }[];
 }
 
@@ -182,7 +213,7 @@ export function makeModelOptionsFromCars(cars: Car[]): {
   };
 }
 
-/** Build all sidebar filter lists from live inventory (no static categories). */
+/** Build inventory filter lists from live cars (no static categories). */
 export function filterOptionsFromCars(cars: Car[]): FilterOptions {
   const makeModel = makeModelOptionsFromCars(cars);
   const years = [
@@ -202,6 +233,12 @@ export function filterOptionsFromCars(cars: Car[]): FilterOptions {
     fuels: uniqueSorted(cars.map((car) => car.fuel?.trim() ?? "")),
     colors: uniqueSorted(cars.map((car) => car.color?.trim() ?? "")),
     bodies: uniqueSorted(cars.map((car) => car.body?.trim() ?? "")),
+    drives: uniqueSorted(cars.map((car) => car.drive?.trim() ?? "")),
+    features: uniqueSorted(
+      cars.flatMap((car) =>
+        (car.keys_feature ?? "").split(",").map((part) => part.trim()),
+      ),
+    ),
     categories: [],
   };
 }

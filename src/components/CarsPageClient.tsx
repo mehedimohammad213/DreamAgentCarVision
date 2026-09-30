@@ -20,8 +20,13 @@ export type CarsSearchParams = {
   body?: string;
   fuel?: string;
   transmission?: string;
+  color?: string;
+  drive?: string;
+  feature?: string;
   price_from?: string;
   price_to?: string;
+  mileage_from?: string;
+  mileage_to?: string;
   sort_by?: string;
   sort_direction?: string;
 };
@@ -65,8 +70,13 @@ export default function CarsPageClient({
             body: params.body,
             fuel: params.fuel,
             transmission: params.transmission,
+            color: params.color,
+            drive: params.drive,
+            feature: params.feature,
             price_from: params.price_from,
             price_to: params.price_to,
+            mileage_from: params.mileage_from,
+            mileage_to: params.mileage_to,
             sort_by: params.sort_by,
             sort_direction: params.sort_direction,
           }),
@@ -96,8 +106,13 @@ export default function CarsPageClient({
     params.body,
     params.fuel,
     params.transmission,
+    params.color,
+    params.drive,
+    params.feature,
     params.price_from,
     params.price_to,
+    params.mileage_from,
+    params.mileage_to,
     params.sort_by,
     params.sort_direction,
   ]);
@@ -123,7 +138,7 @@ export default function CarsPageClient({
           <div className={loading ? "opacity-60 transition-opacity" : undefined}>
             {cars.length > 0 ? (
               <>
-                <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                   {cars.map((car) => (
                     <CarCard key={car.id} car={car} />
                   ))}

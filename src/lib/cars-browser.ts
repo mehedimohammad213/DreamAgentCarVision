@@ -6,6 +6,7 @@
 import { siteConfig } from "@/config/site";
 import type { Car, CarsApiResponse } from "@/lib/types";
 import {
+  carMatchesLocalFilters,
   filterOptionsFromCars,
   type CarQueryParams,
   type FilterOptions,
@@ -87,9 +88,12 @@ export async function fetchCarsBrowser(params?: CarQueryParams): Promise<{
   total: number;
   lastPage: number;
 }> {
-  const { body, page = 1, per_page = 15, ...apiParams } = params ?? {};
+  const { body, model, feature, page = 1, per_page = 15, ...apiParams } =
+    params ?? {};
+  const localFilters = { body, model, feature };
+  const needsLocal = Boolean(body || model || feature);
 
-  if (!body) {
+  if (!needsLocal) {
     return fetchCarsFromApi({ ...apiParams, page, per_page });
   }
 
@@ -104,8 +108,8 @@ export async function fetchCarsBrowser(params?: CarQueryParams): Promise<{
         );
 
   const allCars = [first.cars, ...pages.map((p) => p.cars)].flat();
-  const filtered = allCars.filter(
-    (car) => car.body?.trim().toLowerCase() === body.trim().toLowerCase(),
+  const filtered = allCars.filter((car) =>
+    carMatchesLocalFilters(car, localFilters),
   );
 
   return paginateCars(filtered, page, per_page);
