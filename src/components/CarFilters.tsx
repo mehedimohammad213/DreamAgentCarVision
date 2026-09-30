@@ -156,26 +156,26 @@ export default function CarsFilterLayout({
 
   return (
     <div>
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-        {heading ? <div className="min-w-0">{heading}</div> : <div />}
-        {hasActiveFilters ? (
-          <button
-            type="button"
-            onClick={() => router.push("/cars")}
-            className="self-start rounded-lg border border-border px-4 py-2 text-sm font-semibold text-dark transition-colors hover:border-primary hover:text-primary sm:self-auto"
-          >
-            Reset
-          </button>
-        ) : null}
-      </div>
+      <div className="rounded-2xl border border-border bg-white p-4 shadow-[0_8px_30px_rgba(46,49,146,0.08)] sm:p-6">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+          {heading ? <div className="min-w-0">{heading}</div> : <div />}
+          {hasActiveFilters ? (
+            <button
+              type="button"
+              onClick={() => router.push("/cars")}
+              className="self-start rounded-lg border border-primary px-4 py-2 text-sm font-semibold text-primary transition-colors hover:bg-primary hover:text-white sm:self-auto"
+            >
+              Reset
+            </button>
+          ) : null}
+        </div>
 
-      <div className="mt-5 rounded-2xl border border-border bg-white p-3 shadow-sm sm:p-4">
         <form
           onSubmit={(event) => {
             event.preventDefault();
             commitKeyword();
           }}
-          className="relative"
+          className="relative mt-5"
         >
           <input
             aria-label="Keyword"
@@ -301,13 +301,12 @@ export default function CarsFilterLayout({
             onChange={(value) => setParams({ color: value })}
           />
         </div>
-      </div>
 
-      <div className="mt-5 flex flex-wrap items-center gap-3">
-        <label htmlFor="car-sort" className="text-sm font-medium text-dark">
-          Sort by:
-        </label>
-        <div className="relative min-w-[220px]">
+        <div className="mt-4 flex flex-wrap items-center gap-3 border-t border-border pt-4">
+          <label htmlFor="car-sort" className="text-sm font-medium text-dark">
+            Sort by:
+          </label>
+          <div className="relative min-w-[220px]">
           <select
             id="car-sort"
             aria-label="Sort by"
@@ -337,7 +336,8 @@ export default function CarsFilterLayout({
               </option>
             ))}
           </select>
-          <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-brand" />
+            <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-brand" />
+          </div>
         </div>
       </div>
 
