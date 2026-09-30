@@ -34,7 +34,6 @@ export type CarsSearchParams = {
 type CarsPageClientProps = {
   searchParams: CarsSearchParams;
   initialCars: Car[];
-  initialTotal: number;
   initialLastPage: number;
   initialFilterOptions: FilterOptions;
   heroImage?: string;
@@ -43,14 +42,12 @@ type CarsPageClientProps = {
 export default function CarsPageClient({
   searchParams: params,
   initialCars,
-  initialTotal,
   initialLastPage,
   initialFilterOptions,
   heroImage,
 }: CarsPageClientProps) {
   const page = Number(params.page) || 1;
   const [cars, setCars] = useState(initialCars);
-  const [total, setTotal] = useState(initialTotal);
   const [lastPage, setLastPage] = useState(initialLastPage);
   const [filterOptions, setFilterOptions] = useState(initialFilterOptions);
   const [loading, setLoading] = useState(false);
@@ -87,7 +84,6 @@ export default function CarsPageClient({
 
         if (cancelled) return;
         setCars(carsResult.cars);
-        setTotal(carsResult.total);
         setLastPage(carsResult.lastPage);
         setFilterOptions(options);
       } finally {
@@ -128,10 +124,8 @@ export default function CarsPageClient({
           <h1 className="text-3xl font-bold tracking-tight text-white sm:text-4xl lg:text-5xl">
             Car Inventory
           </h1>
-          <p className="mt-3 text-sm font-medium text-white/80 sm:text-base">
-            {total > 0
-              ? `${total} Vehicle${total !== 1 ? "s" : ""}`
-              : "Browse our collection of quality vehicles"}
+          <p className="mt-3 max-w-2xl text-sm font-medium text-white/80 sm:text-base">
+            Auction-checked Japanese reconditioned cars with original mileage.
           </p>
         </div>
       }

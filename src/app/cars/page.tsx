@@ -32,7 +32,7 @@ interface CarsPageProps {
 
 export default async function CarsPage({ searchParams: params }: CarsPageProps) {
   const page = Number(params.page) || 1;
-  const [{ cars, total, lastPage }, filterOptions, aboutPage] = await Promise.all([
+  const [{ cars, lastPage }, filterOptions, aboutPage] = await Promise.all([
     getCars({
       page,
       per_page: 15,
@@ -62,7 +62,6 @@ export default async function CarsPage({ searchParams: params }: CarsPageProps) 
     <CarsPageClient
       searchParams={params}
       initialCars={cars}
-      initialTotal={total}
       initialLastPage={lastPage}
       initialFilterOptions={filterOptions}
       heroImage={heroImage}

@@ -189,28 +189,63 @@ export default function CarsFilterLayout({
           ) : null}
         </div>
 
-        <form
-          onSubmit={(event) => {
-            event.preventDefault();
-            commitKeyword();
-          }}
-          className="relative mt-5"
-        >
-          <input
-            aria-label="Keyword"
-            placeholder="Enter keyword"
-            value={keyword}
-            onChange={(event) => setKeyword(event.target.value)}
-            className="h-11 w-full rounded-lg border border-border bg-white px-4 pr-12 text-sm text-dark outline-none placeholder:text-dark/50 focus:border-brand focus:ring-2 focus:ring-brand/20"
-          />
-          <button
-            type="submit"
-            aria-label="Search"
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-brand"
+        <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center">
+          <form
+            onSubmit={(event) => {
+              event.preventDefault();
+              commitKeyword();
+            }}
+            className="relative min-w-0 flex-1"
           >
-            <Search className="h-4 w-4" />
-          </button>
-        </form>
+            <input
+              aria-label="Keyword"
+              placeholder="Enter keyword"
+              value={keyword}
+              onChange={(event) => setKeyword(event.target.value)}
+              className="h-11 w-full rounded-lg border border-border bg-white px-4 pr-12 text-sm text-dark outline-none placeholder:text-dark/50 focus:border-brand focus:ring-2 focus:ring-brand/20"
+            />
+            <button
+              type="submit"
+              aria-label="Search"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-brand"
+            >
+              <Search className="h-4 w-4" />
+            </button>
+          </form>
+
+          <div className="relative min-w-[220px] shrink-0">
+              <select
+                id="car-sort"
+                aria-label="Sort by"
+                value={sortLabel}
+                onChange={(event) => {
+                  const option = SORT_OPTIONS.find(
+                    (item) => item.label === event.target.value,
+                  );
+                  if (!option || option.sortBy === "created_at") {
+                    setParams({ sort_by: "", sort_direction: "" });
+                    return;
+                  }
+                  setParams({
+                    sort_by: option.sortBy,
+                    sort_direction: option.sortDirection,
+                  });
+                }}
+                className="h-11 w-full appearance-none rounded-lg border border-border bg-white px-3 pr-9 text-sm font-medium text-brand outline-none focus:border-brand focus:ring-2 focus:ring-brand/20"
+              >
+                {SORT_OPTIONS.map((option) => (
+                  <option
+                    key={option.label}
+                    value={option.label}
+                    className="bg-white font-normal text-dark"
+                  >
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-brand" />
+          </div>
+        </div>
 
         <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">
           <FilterSelect
@@ -319,44 +354,6 @@ export default function CarsFilterLayout({
             options={options.colors}
             onChange={(value) => setParams({ color: value })}
           />
-        </div>
-
-        <div className="mt-4 flex flex-wrap items-center gap-3">
-          <label htmlFor="car-sort" className="text-sm font-medium text-white">
-            Sort by:
-          </label>
-          <div className="relative min-w-[220px]">
-          <select
-            id="car-sort"
-            aria-label="Sort by"
-            value={sortLabel}
-            onChange={(event) => {
-              const option = SORT_OPTIONS.find(
-                (item) => item.label === event.target.value,
-              );
-              if (!option || option.sortBy === "created_at") {
-                setParams({ sort_by: "", sort_direction: "" });
-                return;
-              }
-              setParams({
-                sort_by: option.sortBy,
-                sort_direction: option.sortDirection,
-              });
-            }}
-            className="h-11 w-full appearance-none rounded-lg border border-border bg-white px-3 pr-9 text-sm font-medium text-brand outline-none focus:border-brand focus:ring-2 focus:ring-brand/20"
-          >
-            {SORT_OPTIONS.map((option) => (
-              <option
-                key={option.label}
-                value={option.label}
-                className="bg-white font-normal text-dark"
-              >
-                {option.label}
-              </option>
-            ))}
-          </select>
-            <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-brand" />
-          </div>
         </div>
         </div>
       </section>
