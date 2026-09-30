@@ -118,48 +118,46 @@ export default function CarsPageClient({
   ]);
 
   return (
-    <section className="py-8 sm:py-10">
-      <div className="page-container">
-        <CarsFilterLayout
-          options={filterOptions}
-          heading={
-            <div>
-              <h1 className="text-2xl font-bold tracking-tight text-brand sm:text-3xl">
-                Car Inventory
-              </h1>
-              <p className="mt-0.5 text-sm font-medium text-muted">
-                {total > 0
-                  ? `${total} Vehicle${total !== 1 ? "s" : ""}`
-                  : "Browse our collection of quality vehicles"}
+    <CarsFilterLayout
+      options={filterOptions}
+      heading={
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight text-white sm:text-4xl lg:text-5xl">
+            Car Inventory
+          </h1>
+          <p className="mt-3 text-sm font-medium text-white/80 sm:text-base">
+            {total > 0
+              ? `${total} Vehicle${total !== 1 ? "s" : ""}`
+              : "Browse our collection of quality vehicles"}
+          </p>
+        </div>
+      }
+    >
+      <section className="page-container py-8 sm:py-10">
+        <div className={loading ? "opacity-60 transition-opacity" : undefined}>
+          {cars.length > 0 ? (
+            <>
+              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                {cars.map((car) => (
+                  <CarCard key={car.id} car={car} />
+                ))}
+              </div>
+              <Pagination
+                currentPage={page}
+                lastPage={lastPage}
+                searchParams={params}
+              />
+            </>
+          ) : (
+            <div className="rounded-2xl border border-dashed border-border bg-surface p-16 text-center">
+              <p className="text-lg font-medium">No cars found</p>
+              <p className="mt-2 text-sm text-muted">
+                Try adjusting your search filters or check back later.
               </p>
             </div>
-          }
-        >
-          <div className={loading ? "opacity-60 transition-opacity" : undefined}>
-            {cars.length > 0 ? (
-              <>
-                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                  {cars.map((car) => (
-                    <CarCard key={car.id} car={car} />
-                  ))}
-                </div>
-                <Pagination
-                  currentPage={page}
-                  lastPage={lastPage}
-                  searchParams={params}
-                />
-              </>
-            ) : (
-              <div className="rounded-2xl border border-dashed border-border bg-surface p-16 text-center">
-                <p className="text-lg font-medium">No cars found</p>
-                <p className="mt-2 text-sm text-muted">
-                  Try adjusting your search filters or check back later.
-                </p>
-              </div>
-            )}
-          </div>
-        </CarsFilterLayout>
-      </div>
-    </section>
+          )}
+        </div>
+      </section>
+    </CarsFilterLayout>
   );
 }

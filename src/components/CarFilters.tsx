@@ -156,7 +156,8 @@ export default function CarsFilterLayout({
 
   return (
     <div>
-      <div className="rounded-2xl border border-border bg-white p-4 shadow-[0_8px_30px_rgba(46,49,146,0.08)] sm:p-6">
+      <section className="bg-dark">
+        <div className="page-container py-8 sm:py-10">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           {heading ? <div className="min-w-0">{heading}</div> : <div />}
           {hasActiveFilters ? (
@@ -302,8 +303,8 @@ export default function CarsFilterLayout({
           />
         </div>
 
-        <div className="mt-4 flex flex-wrap items-center gap-3 border-t border-border pt-4">
-          <label htmlFor="car-sort" className="text-sm font-medium text-dark">
+        <div className="mt-4 flex flex-wrap items-center gap-3 border-t border-white/15 pt-4">
+          <label htmlFor="car-sort" className="text-sm font-medium text-white">
             Sort by:
           </label>
           <div className="relative min-w-[220px]">
@@ -339,9 +340,10 @@ export default function CarsFilterLayout({
             <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-brand" />
           </div>
         </div>
-      </div>
+        </div>
+      </section>
 
-      <div className="mt-6">{children}</div>
+      {children}
     </div>
   );
 }
